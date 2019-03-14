@@ -40,6 +40,6 @@ function epochs_struct = epoching_from_event(runData,eventOfInterest,timeBeforeE
     epochs = permute(epochs, [3,1,2]);
     
     % put it as a structure
-    epochs_struct = struct('trial',epochs, 'time', time);
+    epochs_struct = struct('trial',epochs, 'time', time, 'sampling_frequency', runData(1).sampling_rate);
 end
 
