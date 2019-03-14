@@ -13,10 +13,9 @@ function [power, freq] = power_compute(epoch)
         p_trial = [];
         for iChannel = 1:1:16
             
-            iChannel
             thisTrial = squeeze(epoch.trial(iTrial,iChannel,:)); 
 
-            [pxx, f] = pwelch(thisTrial, sampling_rate, 0.5, [], sampling_rate);
+            [pxx, f] = pwelch(thisTrial, sampling_rate, 0.5*sampling_rate, [], sampling_rate);
             p_trial = cat(1,p_trial,pxx.');
             if length(freq) == 0
                 freq = f;
