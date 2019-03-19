@@ -1,4 +1,5 @@
-%load_script
+% load the data from the outputs folder
+load('./../outputs/RunsData.mat')
 
 [test,f] = pwelch(RunsData(2).signal(1,:),RunsData(2).sampling_rate);
 time = linspace(0,length(RunsData(2).signal)/RunsData(2).sampling_rate,length(RunsData(2).signal));

@@ -4,7 +4,7 @@ function [power, freq] = power_compute(epoch)
 
     %epoch = trial x 16 x time
     
-    power = []  %nChannel x Trials
+    power = [];  %nChannel x Trials
     %power = zeros(16,257);
     freq = [];
     sampling_rate = 512;
