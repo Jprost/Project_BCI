@@ -24,6 +24,8 @@ function [] = periodogram_averageChannels(data_Basline,data_MI)
     patch(freqBoth,BL_shade,'r','FaceAlpha',.3)
     patch(freqBoth,MI_shade,'b','FaceAlpha',.3)
     legend('Baseline','Motor Imagery Start','Std over channels','Std over channels')
+    xlabel('Frequency [Hz]')
+    ylabel('[dB/Hz]')
     xlim([0,40])
     
     

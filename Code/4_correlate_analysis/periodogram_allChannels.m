@@ -14,6 +14,10 @@ function [] = periodogram_allChannels(data_Basline,data_MI,channel_lab)
     MI_SD = std(MI_power,0,3); %STD over Trials
     
     
+    x_label='Frequency [Hz]';
+    y_label='[dB/Hz]';
+    
+    
     figure()
     iChannel = 1;
     hold on;
@@ -29,6 +33,8 @@ function [] = periodogram_allChannels(data_Basline,data_MI,channel_lab)
     plot(MI_freq,10*log10(MI_mean(iChannel,:)),'b','LineWidth',1)
     xlim([0,40])
     title(channel_lab(1))
+    xlabel(x_label)
+    ylabel(y_label)
     freqBoth = [BL_freq' fliplr(BL_freq')];
     
     BL_shade = [(10*log10(BL_mean(iChannel,:)+BL_SD(iChannel,:))) (fliplr( 10*log10(BL_mean(iChannel,:)) - ((10*log10(BL_mean(iChannel,:)+BL_SD(iChannel,:))) - (10*log10(BL_mean(iChannel,:)))) ))];
@@ -58,6 +64,15 @@ function [] = periodogram_allChannels(data_Basline,data_MI,channel_lab)
         patch(freqBoth,BL_shade,'r','FaceAlpha',.3,'LineWidth',0.01)
         patch(freqBoth,MI_shade,'b','FaceAlpha',.3,'LineWidth',0.01)
         hold off;
+        
+        if (iChannel==2) || (iChannel==7) || (iChannel==12)
+            ylabel(y_label);
+        end
+
+        % labels the X axis 
+        if (iChannel==12) || (iChannel==13) || (iChannel==14) || (iChannel==15) || (iChannel==16)
+            xlabel(x_label);
+        end
     end
     
 end

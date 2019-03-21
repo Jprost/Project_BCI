@@ -20,6 +20,8 @@ function [] = periodogram_plot_oneChannel(data_Basline,data_MI,channel,channel_l
     figure
     hold on;
     title(strcat('Periodogram for channel ',channel_lab(channel),', mean over trials'))
+    xlabel('Frequency [Hz]')
+    ylabel('[dB/Hz]')
     plot(BL_freq,10*log10(BL_mean),'r','LineWidth',1)
     plot(MI_freq,10*log10(MI_mean),'b','LineWidth',1)
     xlim([0,40])
