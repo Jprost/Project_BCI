@@ -17,8 +17,6 @@ function [] = periodogram_allChannels(data_Basline,data_MI,channel_lab)
     x_label='Frequency [Hz]';
     y_label='[dB/Hz]';
     
-    
-    figure()
     iChannel = 1;
     hold on;
     annotation('textbox', [0 0.9 1 0.1], ...
@@ -26,8 +24,6 @@ function [] = periodogram_allChannels(data_Basline,data_MI,channel_lab)
     'EdgeColor', 'none', ...
     'HorizontalAlignment', 'center','FontSize',14,'FontWeight','bold')
     subplot(4,5,3)
-    
-    
     
     plot(BL_freq,10*log10(BL_mean(iChannel,:)),'r','LineWidth',1)
     plot(MI_freq,10*log10(MI_mean(iChannel,:)),'b','LineWidth',1)

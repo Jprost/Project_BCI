@@ -17,7 +17,6 @@ function [] = periodogram_plot_oneChannel(data_Basline,data_MI,channel,channel_l
     BL_SD = BL_SD(channel,:);
     MI_SD = MI_SD(channel,:);
     
-    figure
     hold on;
     title(strcat('Periodogram for channel ',channel_lab(channel),', mean over trials'))
     xlabel('Frequency [Hz]')

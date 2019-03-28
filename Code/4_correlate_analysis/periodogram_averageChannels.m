@@ -11,8 +11,7 @@ function [] = periodogram_averageChannels(data_Basline,data_MI)
     MI_mean = mean(mean(MI_power,1),3);
     BL_SD = std(mean(BL_power,3),0,1); %STD over CHANNEL
     MI_SD = std(mean(MI_power,3),0,1); %STD over CHANNEL
-    
-    figure
+
     hold on;
     title('Average PSD over all trials (epochs) and all channels')
     plot(BL_freq,10*log10(BL_mean),'r')

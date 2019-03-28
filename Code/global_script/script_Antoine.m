@@ -1,5 +1,5 @@
 % Global Script for Antoine's data
-% Enable use of toolboxes
+% Enable use of toolboxe biosig
 addpath(genpath('./../toolboxes/biosig'));
 %addpath(genpath('./../toolboxes/eeglab14_1_2b'));
 
@@ -54,7 +54,7 @@ save('../outputs/output_antoine/epoch_MI_Stop.mat','epoch_MI_Stop')
 %Load Epochs
     %load('./../outputs/output_antoine/epoch_baseline.mat')
     %load('./../outputs/output_antoine/epoch_MI_Start.mat')
-runData = load('./../outputs/runsData.mat');
+runData = load('./../outputs/output_antoine/runsData.mat');
 channel_lab = {runData.RunsData(1).channel_loc.labels};
 
 % Periodogram for ONE channel
@@ -72,9 +72,9 @@ periodogram_averageChannels(epoch_baseline, epoch_MI_Start)
 
 %% Correlate Analysis : Spectrogram
 % load epoching data
-load('./../outputs/epoch_MI_Stop.mat');
-load('./../outputs/epoch_MI_Start.mat');
-load('./../outputs/epoch_Baseline.mat');
+load('./../outputs/output_antoine/epoch_MI_Stop.mat');
+load('./../outputs/output_antoine/epoch_MI_Start.mat');
+load('./../outputs/output_antoine/epoch_baseline.mat');
 
 % spectrogram parameters
 fs = epoch_MI_Start.sampling_frequency;
