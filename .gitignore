@@ -29,4 +29,4 @@ codegen/
 octave-workspace
 
 #Shitty file
-*.DS_Store
+*DS_Store
