@@ -26,26 +26,26 @@ function [feat_oneTrial] = windowing(trial, time, win, shift, start, stop)
 % Extract the subpart of interest (ERD or ERS) from the whole epoch
 %WARNING : Need an epoching -3 +3 aroung MI_STOP event
     sampling_rate = 512;
-    time = time + (ones(length(time))*-3);
-    start_ind = find(time==start);
+    time = time;
+    start_i = find(time==start);
     data = squeeze(trial); % 16 x time 
    
     power = [];
     %Shift sequentially window
     shift_nsample = shift*sampling_rate; %32
-    n_win = (stop-start)/shift; %16
+    n_win = 16;%(stop-start)/shift; %16
     for iShift = 0:n_win
-        start_ind = start_ind + iShift*shift_nsample;
+        start_ind = start_i + iShift*shift_nsample;
         stop_ind = start_ind + win*sampling_rate;
             
         %pwelch compute PSD on each column
         [pxx, f] = pwelch(transpose(data(:,start_ind:stop_ind)), sampling_rate, 0.5*sampling_rate, [4:2:40], sampling_rate);
         %pxx = 19x16   PSD for (freq x eachChannel)
-        pxx = reshape(pxx, [1,[]]); %1 x 304 
+        pxx = reshape(pxx, [1,304]); %1 x 304 
+        power = cat(1,power,pxx);  % 17 x 304    (window_shifted x features) = (samples * features)
     
     end
     
-    feat_oneTrial = cat(1,power,pxx);  % 17 x 304    (window_shifted x features) = (samples * features)
-
+    feat_oneTrial = power;
 end
 

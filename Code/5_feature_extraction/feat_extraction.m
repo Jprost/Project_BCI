@@ -28,7 +28,7 @@ function [features_mat] = feat_extraction(trials, time, win, shift, start_ERD, s
 %Loop over trial
 nTrials = size(trials,1);
 
-features_mat = []
+features_mat = [];
 
 for itrial = 1:nTrials
     thisTrial = trials(itrial,:,:);
