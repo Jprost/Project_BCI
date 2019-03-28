@@ -1,6 +1,6 @@
 % Enable use of toolbox functions
-addpath(genpath('./../toolboxes/biosig'));
-addpath(genpath('./../toolboxes/eeglab14_1_2b'));
+% addpath(genpath('./../toolboxes/biosig'));
+% addpath(genpath('./../toolboxes/eeglab14_1_2b'));
 
 % data localisation
 datafolder_path = './../data/test_data/20191902/';

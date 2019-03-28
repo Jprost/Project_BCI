@@ -1,6 +1,6 @@
 % Enable use of toolbox functions
-addpath(genpath('./../toolboxes/biosig'));
-addpath(genpath('./../toolboxes/eeglab14_1_2b'));
+% addpath(genpath('./../toolboxes/biosig'));
+% addpath(genpath('./../toolboxes/eeglab14_1_2b'));
 
 % load the data from the outputs folder
 load('./../outputs/FilteredRunsData.mat');
