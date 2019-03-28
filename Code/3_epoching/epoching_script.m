@@ -3,16 +3,16 @@ addpath(genpath('./../toolboxes/biosig'));
 addpath(genpath('./../toolboxes/eeglab14_1_2b'));
 
 % load the data from the outputs folder
-load('./../outputs/FilteredRunsData.mat')
+load('./../outputs/FilteredRunsData.mat');
 
-% baseline --> 200
-epochs_baseline = epoching_from_event(FilteredData, 300, 3, 0);
-save('../outputs/epoch_baseline.mat','epochs_baseline')
+%% baseline centered on MI-start
+epoch_baseline = epoching_from_event(FilteredData, 300, 2, 0);
+save('../outputs/epoch_baseline.mat','epoch_baseline')
 
-% strat MI --> 300
-epochs_MI_start = epoching_from_event(FilteredData, 300, 0, 3);
-save('../outputs/epoch_MI_start.mat','epochs_MI_start')
+% epochs centered on MI-start
+epoch_MI_Start = epoching_from_event(FilteredData, 300, 3, 3);
+save('../outputs/epoch_MI_Start.mat','epoch_MI_Start')
 
-% baseline + MI centered in MI 
-epochs_MI_Baseline = epoching_from_event(FilteredData, 300, 3, 3);
-save('../outputs/epoch_MI_Baseline.mat','epochs_MI_Baseline')
+% epochs centered on MI stop
+epoch_MI_Stop = epoching_from_event(FilteredData, 555, 3, 3);
+save('../outputs/epoch_MI_Stop.mat','epoch_MI_Stop')
