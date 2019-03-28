@@ -7,7 +7,7 @@ load('./../outputs/runsData.mat')
 load('./../data/laplacian_16_10-20_mi.mat');
 
 % Spatial filtering 
-FilteredData = preprocess_all_run(RunsData, lap, false);
+FilteredData = preprocess_all_run(RunsData, lap, true);
 
 % save the data in .mat 
 save('../outputs/FilteredRunsData.mat','FilteredData')

@@ -6,23 +6,16 @@
 % addpath(genpath('./../toolboxes/eeglab14_1_2b'));
 
 % load epoching data
-load('./../outputs/epoch_MI_Baseline.mat');
+load('./../outputs/epoch_MI_Stop.mat');
+load('./../outputs/epoch_Baseline.mat');
 
 % periodogram for all channels
-fs = epochs_MI_Baseline.sampling_frequency;
+fs = epoch_MI_Stop.sampling_frequency;
 non_overlap_time = 0.0625;
 window_time = 1;
 
 %% Compute ERD/ERS
-% ERD_ERS_mat : 4D array -> time x freq x trial x channel 
-ERD_ERS_mat = [];
-
-for c=1:1:size(epochs_MI_Baseline.trial, 2)
-    [ERD_ERS_chan, t, f] = spectrogram_from_many_epochs(squeeze(epochs_MI_Baseline.trial(:,c,:)), fs, window_time, non_overlap_time);
-    ERD_ERS_mat = cat(4, ERD_ERS_mat, ERD_ERS_chan);
-end
- 
-%% Save the matrix ERD_ERS_mat
+[ERD_ERS_mat, t, f] = compute_spectrogram(epoch_MI_Stop, epoch_baseline, fs, window_time, non_overlap_time);
 
 %% Plot the spectrogram averaged over all trials
 % single plot : Channel C3
