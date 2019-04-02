@@ -102,5 +102,13 @@ for i = 1:size(final_features,2)
 end
 figure
 imagesc(map_feat);
+title('6 Selected Features, Channel vs Freq');
+xlabel('frequence [Hz]');
+ylabel('channel');
+xticks([1:19]);
+xticklabels([4:2:40]);
+yticks([1:16]);
+yticklabels([{'FZ';'FC3';'FC1';'FCz';'FC2';'FC4';'C3';'C1';'Cz';'C2';'C4';'CP3';'CP1';'CPZ';'CP2';'CP4'}]);
+
 
 
