@@ -15,7 +15,7 @@ periodogram_plot_oneChannel(epochs_baseline,epochs_MI_start,channel_num,channel_
 
 
 %% Periodogram for ALL 16 channels in one plot
-periodogram_allChannels(epochs_baseline,epochs_MI_start,channel_lab)
+periodogram_allChannels(epoch_baseline,epochs_MI_start,channel_lab)
 
 
 %% Periodogram, average over channels and trials

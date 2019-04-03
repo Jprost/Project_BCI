@@ -4,7 +4,7 @@
 addpath(genpath('./../toolboxes/biosig'));
 
 %Load Epochs
-load('./../outputs/epoch_MI_Stop.mat')
+load('./../outputs/output_antoine/epoch_MI_Stop.mat')
 
 trials = epoch_MI_Stop.trial;
 time = epoch_MI_Stop.time;
@@ -93,16 +93,16 @@ final_model = fitcdiscr(dataInput, labels_mat, 'discrimtype', 'linear');
 final_features = orderedInd(1:6);
 
 %Warning matlab count from top to bottom before left to right
-%Thus map to Channel x freq  -> 16 x 19
-siz = [16,19];
+%Thus map to freq x channel  -> 19 x 16
+siz = [19,16];
 [rows,cols] = ind2sub(siz,final_features);
-map_feat = zeros(16,19);
+map_feat = zeros(19,16);
 for i = 1:size(final_features,2)
     map_feat(rows(i),cols(i)) = 1;
 end
 figure
-imagesc(map_feat);
-title('6 Selected Features, Channel vs Freq');
+imagesc(map_feat');
+title('6 Selected Features, Freq vs Channel');
 xlabel('frequence [Hz]');
 ylabel('channel');
 xticks([1:19]);
@@ -111,4 +111,19 @@ yticks([1:16]);
 yticklabels([{'FZ';'FC3';'FC1';'FCz';'FC2';'FC4';'C3';'C1';'Cz';'C2';'C4';'CP3';'CP1';'CPZ';'CP2';'CP4'}]);
 
 
+all_feat_score = zeros(19,16);
+[rows_pow,cols_pow] = ind2sub(siz,orderedInd);
+for i = 1:size(orderedPower,2)
+    all_feat_score(rows_pow(i),cols_pow(i)) = orderedPower(i);
+end
 
+figure
+imagesc(all_feat_score');
+title('Power of all features, Channel vs Freq');
+xlabel('frequence [Hz]');
+ylabel('channel');
+xticks([1:19]);
+xticklabels([4:2:40]);
+yticks([1:16]);
+yticklabels([{'FZ';'FC3';'FC1';'FCz';'FC2';'FC4';'C3';'C1';'Cz';'C2';'C4';'CP3';'CP1';'CPZ';'CP2';'CP4'}]);
+colorbar
