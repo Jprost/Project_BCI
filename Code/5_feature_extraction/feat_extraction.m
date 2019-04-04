@@ -17,12 +17,12 @@ function [features_mat] = feat_extraction(trials, time, win, shift, start_ERD, s
 %
 %
 %   Output :
-%       features_mat : 32 x 304 x 80   =  samples x Features x nTrials
+%       features_mat : 34 x 304 x 80   =  samples x Features x nTrials
 %       All Features (channels & freq) for all trials and all 1s window
 %       shifted (samples)
-%       feat_oneTrial : 32 x 304   concatenate both output of windowing()
+%       feat_oneTrial : 34 x 304   concatenate both output of windowing()
 %       on ERD and ERS subpart of trial
-%       32 samples (32 pwelch power) on 19freq and 16channel = 304 features
+%       34 samples (34 pwelch power) on 19freq and 16channel = 304 features
 %       17 first samples are ERD (CLASS 0) and 17 last ERS (CLASS 1)
 
 %Loop over trial
@@ -39,7 +39,7 @@ for itrial = 1:nTrials
     feat_oneTrial = cat(1,feat_oneTrial_ERD,feat_oneTrial_ERS); %32 x 304
     
     features_mat = cat(3,features_mat,feat_oneTrial);
-    % 32 x 304 x 80   =  samples x Features x nTrials
+    % 34 x 304 x 80   =  samples x Features x nTrials
 
 end
 

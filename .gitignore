@@ -29,4 +29,8 @@ codegen/
 octave-workspace
 
 #Shitty file
-*DS_Store
+*.DS_Store
+
+#map loading
+*sopen.mat
+Code/global_script/sopen.mat
