@@ -1,7 +1,7 @@
 function topo_plot( data, c_bar )
 % datav = vector of values at the corresponding locations.
 
-addpath(genpath('./../toolboxes/eeglab14_1_2b'));
+%addpath(genpath('./../toolboxes/eeglab14_1_2b'));
 load('./../data/channel_location_16_10-20_mi.mat')
 clims=[-4,4];
 
