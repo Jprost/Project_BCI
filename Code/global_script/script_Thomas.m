@@ -30,7 +30,7 @@ RunsData(4).event.action_pos = RunsData(4).event.action_pos(1:upper_idx_to_keep,
 RunsData(4).event.action_type = RunsData(4).event.action_type(1:upper_idx_to_keep, :);
 
 % save data
-save('../outputs/output_antoine/runsData.mat','RunsData')
+save('../outputs/output_Thomas/runsData.mat','RunsData')
 
 %% Preprocess : Spatial Filtering
 
@@ -42,7 +42,7 @@ load('./../data/laplacian_16_10-20_mi.mat');
 FilteredData = preprocess_all_run(RunsData, lap, true);
 
 % save the data in .mat 
-save('../outputs/output_antoine/FilteredRunsData.mat','FilteredData')
+save('../outputs/output_Thomas/FilteredRunsData.mat','FilteredData')
     
 
 %% Epoching
@@ -52,15 +52,15 @@ save('../outputs/output_antoine/FilteredRunsData.mat','FilteredData')
 
 % epochs for the baseline: 2 second before MI-start
 epoch_baseline = epoching_from_event(FilteredData, 300, 2, 0);
-save('../outputs/output_antoine/epoch_baseline.mat','epoch_baseline')
+save('../outputs/output_Thomas/epoch_baseline.mat','epoch_baseline')
 
 % epochs centered on MI-start
 epoch_MI_Start = epoching_from_event(FilteredData, 300, 3, 3);
-save('../outputs/output_antoine/epoch_MI_Start.mat','epoch_MI_Start')
+save('../outputs/output_Thomas/epoch_MI_Start.mat','epoch_MI_Start')
 
 % epochs centered on MI stop
 epoch_MI_Stop = epoching_from_event(FilteredData, 555, 3, 3);
-save('../outputs/output_antoine/epoch_MI_Stop.mat','epoch_MI_Stop')
+save('../outputs/output_Thomas/epoch_MI_Stop.mat','epoch_MI_Stop')
 
 %% Correlate Analysis : Periodogram
 
@@ -107,8 +107,8 @@ sgtitle('Spectrogram Centered on MI-Stop')
 plot_all_spectrogram(ERD_ERS_mat_stop, t_stop, f_stop)
 
 % save outputs
-save('../outputs/output_antoine/ERD_ERS_mat_stop.mat','ERD_ERS_mat_start')
-save('../outputs/output_antoine/ERD_ERS_mat_stop.mat','ERD_ERS_mat_stop')
+save('../outputs/output_Thomas/ERD_ERS_mat_stop.mat','ERD_ERS_mat_start')
+save('../outputs/output_Thomas/ERD_ERS_mat_stop.mat','ERD_ERS_mat_stop')
 
 %% Correlate Analysis : Topoplots
 
@@ -148,7 +148,7 @@ stop_ERS = 2.5;
 features_mat = feat_extraction(trials, time, win, shift, start_ERD, stop_ERD, start_ERS, stop_ERS);
 
 % save outputs feature matrix
-save('../outputs/output_antoine/features.mat','features_mat')
+save('../outputs/output_Thomas/features.mat','features_mat')
 
 %% Model building
 
