@@ -8,6 +8,7 @@ addpath('./../1_load_data');
 addpath('./../2_preprocessing');
 addpath('./../3_epoching');
 addpath('./../4_correlate_analysis');
+addpath('./../5_feature_extraction');
 
 %% Load data
 
