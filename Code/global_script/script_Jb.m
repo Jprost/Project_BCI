@@ -3,6 +3,9 @@
 addpath(genpath('./../toolboxes/biosig'));
 %addpath(genpath('./../toolboxes/eeglab14_1_2b'));
 
+oldpath = path;
+path('/Applications/MATLAB_R2018b.app/toolbox/signal',oldpath)
+
 % access functions
 addpath('./../1_load_data');
 addpath('./../2_preprocessing');
@@ -101,16 +104,36 @@ for time=1:5
     xwx=mean(ERD_ERS_mat_start(20, find(t_start==time),:,:), 3);
     
     subplot(2,3,j)
-    topo_plot(squeeze(xwx),false);
+    topo_plot(squeeze(xwx),true);
+    title(['Time ',int2str(time-3)])
     
-    if j==3
-        title('Topoplot', 'FontSize', 20)
-    end
+%     if j==3
+%         title('Topoplot', 'FontSize', 20)
+%     end
     j=j+1;
 end  
 
 %% Feature Extraction
+% avoid conflict with pwelch function of eeglab toolbox
+oldpath = path;
+path('/Applications/MATLAB_R2018b.app/toolbox/signal',oldpath)
 
+
+
+trials = epoch_MI_Stop.trial;
+time = epoch_MI_Stop.time;
+win = 1;
+shift = 0.0625;
+start_ERD = -2;
+stop_ERD = 0;
+start_ERS = 0.5;
+stop_ERS = 2.5;
+
+% generate the feature array
+features_mat = feat_extraction(trials, time, win, shift, start_ERD, stop_ERD, start_ERS, stop_ERS);
+
+% save outputs feature matrix
+save('../outputs/output_jb/features.mat','features_mat')
 
 %% Model building
 
