@@ -107,7 +107,7 @@ sgtitle('Spectrogram Centered on MI-Stop')
 plot_all_spectrogram(ERD_ERS_mat_stop, t_stop, f_stop)
 
 % save outputs
-save('../outputs/output_antoine/ERD_ERS_mat_stop.mat','ERD_ERS_mat_start')
+save('../outputs/output_antoine/ERD_ERS_mat_start.mat','ERD_ERS_mat_start')
 save('../outputs/output_antoine/ERD_ERS_mat_stop.mat','ERD_ERS_mat_stop')
 
 %% Correlate Analysis : Topoplots
@@ -120,14 +120,16 @@ for time=1:5
     
     subplot(2,3,j)
     topo_plot(squeeze(xwx),true);
+    title(['Time ',int2str(time-3)])
     
-    if j==3
-        title('Topoplot', 'FontSize', 20)
-    end
+%     if j==3
+%         title('Topoplot', 'FontSize', 20)
+%     end
     j=j+1;
-end  
+end
 
 %% Feature Extraction
+
 % avoid conflict with pwelch function of eeglab toolbox
 oldpath = path;
 path('/Applications/MATLAB_R2018b.app/toolbox/signal',oldpath)
@@ -144,13 +146,24 @@ stop_ERD = 0;
 start_ERS = 0.5;
 stop_ERS = 2.5;
 
-% generate the feature array
+% Get features matrix (power densitiy for all 304 features (16channels x 19freq) for 17
+%windows on MI event and 17 windows on STOP event
 features_mat = feat_extraction(trials, time, win, shift, start_ERD, stop_ERD, start_ERS, stop_ERS);
 
 % save outputs feature matrix
 save('../outputs/output_antoine/features.mat','features_mat')
 
 %% Model building
+
+kfold = 10;
+nFeatKept = 6;
+% Plot (1) boxplot of CV accuracies and  (2) average ROC curves
+% LDA classifier keaping 'nFeatKept' firt best features (based on fisher score)
+[~,~,~,~,fisher_scores,ord_features] = CV_avg_performance_and_featScore(kfold,features_mat(:,:,1:70),nFeatKept);
+
+%Plot a heatmap channel vs freq, with avg fisher score
+[fisherScore_map] = avg_fisherScore(fisher_scores,ord_features,kfold);
+
 
 
 
