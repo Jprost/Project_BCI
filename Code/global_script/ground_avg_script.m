@@ -168,12 +168,21 @@ yroc_test_ground = mean(padcat1D(yroc_test,2), 2, 'omitnan');
 
 % do plots
 figure
-plot(xroc_train_ground,yroc_train_ground,'b')
 hold on;
-plot(xroc_test_ground,yroc_test_ground,'r')
+plot(xroc_train_ground,yroc_train_ground,'Color',[1,0.5,0.3,1], 'Linewidth',3)
+plot(xroc_test_ground,yroc_test_ground,'Color',[0.3,0.5,1,1], 'Linewidth', 3)
+
+for i=1:1:(size(xroc_train,2))
+    plot(cell2mat(xroc_train(i)),cell2mat(yroc_train(i)),'Color',[1,0.5,0.3,0.2], 'Linewidth',3)
+end
+
+for i=1:1:(size(xroc_test,2))
+    plot(cell2mat(xroc_test(i)),cell2mat(yroc_test(i)),'Color',[0.3,0.5,1,0.2], 'Linewidth',3)
+end
+
 xlabel('False positive rate') 
 ylabel('True positive rate')
-legend('train','test')
+legend('train','test', 'Location','SouthEast')
 title('ROC for Classification, Class 1 (Offset) averaged over subjects')
 
 %% Plot a heatmap channel vs freq, with avg fisher score
