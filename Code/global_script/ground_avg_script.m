@@ -79,7 +79,7 @@ addpath('./../5_feature_extraction');
 % load ERD_ERS_mat of each subject
 m1 = load('./../outputs/output_antoine/ERD_ERS_mat_start.mat');
 m2 = load('./../outputs/output_JB/ERD_ERS_mat_start.mat');
-%m3 = load('./../outputs/output_sacha/ERD_ERS_mat_start.mat');
+m3 = load('./../outputs/output_sacha/ERD_ERS_mat_start.mat');
 m4 = load('./../outputs/output_Thomas/ERD_ERS_mat_start.mat');
 
 all_ERD_ERS_start = padcat_ERDERS({m1.ERD_ERS_mat_start, m2.ERD_ERS_mat_start, m4.ERD_ERS_mat_start}, 5); 
@@ -126,6 +126,10 @@ end
 % load feature_mat 
 f1 = load('./../outputs/output_antoine/features.mat');
 f2 = load('./../outputs/output_sacha/features.mat');
+f3 = load('./../outputs/output_JB/features.mat');
+%f4 = load('./../outputs/output_thomas/features.mat');
+
+fmat = {f1.features_mat(:,:,1:70), f2.features_mat, f3.features_mat};%, f4.features_mat};
 
 fisher_scores_all = [];
 ord_features_all = [];
@@ -140,27 +144,18 @@ nFeatKept = 6;
 
 % Plot (1) boxplot of CV accuracies and  (2) average ROC curves
 % LDA classifier keaping 'nFeatKept' firt best features (based on fisher score)
-[xroc_train_avg,yroc_train_avg,xroc_test_avg,yroc_test_avg,fisher_scores,ord_features] = CV_avg_performance_and_featScore(kfold,f1.features_mat(:,:,1:70),nFeatKept);
+for i = 1:1:size(fmat,2)
+    [xroc_train_avg,yroc_train_avg,xroc_test_avg,yroc_test_avg,fisher_scores,ord_features] = CV_avg_performance_and_featScore(kfold,cell2mat(fmat(i)),nFeatKept);
 
-fisher_scores_all = cat(3, fisher_scores_all, fisher_scores);
-ord_features_all = cat(3, ord_features_all, ord_features);
-xroc_train{end+1} = xroc_train_avg;
-yroc_train{end+1} = yroc_train_avg;
-xroc_test{end+1} = xroc_test_avg;
-yroc_test{end+1} = yroc_test_avg;
-
-[xroc_train_avg,yroc_train_avg,xroc_test_avg,yroc_test_avg,fisher_scores,ord_features] = CV_avg_performance_and_featScore(kfold,f2.features_mat,nFeatKept);
-
-fisher_scores_all = cat(3, fisher_scores_all, fisher_scores);
-ord_features_all = cat(3, ord_features_all, ord_features);
-xroc_train{end+1} = xroc_train_avg;
-yroc_train{end+1} = yroc_train_avg;
-xroc_test{end+1} = xroc_test_avg;
-yroc_test{end+1} = yroc_test_avg;
+    fisher_scores_all = cat(3, fisher_scores_all, fisher_scores);
+    ord_features_all = cat(3, ord_features_all, ord_features);
+    xroc_train{end+1} = xroc_train_avg;
+    yroc_train{end+1} = yroc_train_avg;
+    xroc_test{end+1} = xroc_test_avg;
+    yroc_test{end+1} = yroc_test_avg;
+ end
 
 % average in dimension of subject 
-fisher_scores_all = mean(fisher_scores_all, 3);
-ord_features_all = mean(ord_features_all, 3);
 xroc_train_ground = mean(padcat1D(xroc_train,2), 2, 'omitnan');
 yroc_train_ground = mean(padcat1D(yroc_train,2), 2, 'omitnan');
 xroc_test_ground = mean(padcat1D(xroc_test,2), 2, 'omitnan');
@@ -186,4 +181,27 @@ legend('train','test', 'Location','SouthEast')
 title('ROC for Classification, Class 1 (Offset) averaged over subjects')
 
 %% Plot a heatmap channel vs freq, with avg fisher score
-[fisherScore_map] = avg_fisherScore(fisher_scores_all,ord_features_all,kfold);
+% normalize over subjects the fisher scores to enables comparison
+for i=1:1:size(fisher_scores_all, 3)
+    max_score = max(fisher_scores_all(:,:,i),[],[1 2]);
+    min_score = min(fisher_scores_all(:,:,i),[],[1 2]);
+    
+    fisher_scores_all(:,:,i) = (fisher_scores_all(:,:,i) - min_score)./(max_score - min_score);
+end
+
+% reordonnate features 
+fisher_scores_all_avg = zeros(size(fisher_scores_all));
+
+for i=1:1:size(fisher_scores_all, 3)
+    for feat=1:1:size(fisher_scores_all, 2) 
+       for fold=1:1:size(fisher_scores_all, 1)
+            fisher_scores_all_avg(fold,ord_features_all(fold,feat,i),i) = fisher_scores_all(fold,feat,i);
+       end
+   end 
+end
+
+% average score
+fisher_scores_all_avg = mean(fisher_scores_all_avg, 3);
+
+% plot
+[fisherScore_map] = avg_fisherScore(fisher_scores_all_avg(:,:),repmat(1:304,10,1),kfold);
