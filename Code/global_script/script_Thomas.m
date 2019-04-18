@@ -30,7 +30,7 @@ load('./../data/laplacian_16_10-20_mi.mat');
 FilteredData = preprocess_all_run(RunsData, lap, true);
 
 % save the data in .mat 
-save('../outputs/output_sacha/FilteredRunsData.mat','FilteredData')
+save('../outputs/output_thomas/FilteredRunsData.mat','FilteredData')
     
 
 %% Epoching
@@ -40,22 +40,22 @@ save('../outputs/output_sacha/FilteredRunsData.mat','FilteredData')
 
 % epochs for the baseline: 2 second before MI-start
 epoch_baseline = epoching_from_event(FilteredData, 300, 2, 0);
-save('../outputs/output_sacha/epoch_baseline.mat','epoch_baseline')
+save('../outputs/output_thomas/epoch_baseline.mat','epoch_baseline')
 
 % epochs centered on MI-start
 epoch_MI_Start = epoching_from_event(FilteredData, 300, 3, 3);
-save('../outputs/output_sacha/epoch_MI_Start.mat','epoch_MI_Start')
+save('../outputs/output_thomas/epoch_MI_Start.mat','epoch_MI_Start')
 
 % epochs centered on MI stop
 epoch_MI_Stop = epoching_from_event(FilteredData, 555, 3, 3);
-save('../outputs/output_sacha/epoch_MI_Stop.mat','epoch_MI_Stop')
+save('../outputs/output_thomas/epoch_MI_Stop.mat','epoch_MI_Stop')
 
 %% Correlate Analysis : Periodogram
 
 %Load Epochs
     %load('./../outputs/output_sacha/epoch_baseline.mat')
     %load('./../outputs/output_sacha/epoch_MI_Start.mat')
-runData = load('./../outputs/output_sacha/FilteredRunsData.mat');
+runData = load('./../outputs/output_thomas/FilteredRunsData.mat');
 channel_lab = {runData.FilteredData(1).channel_loc.labels};
 
 % Periodogram for ONE channel
@@ -73,9 +73,9 @@ periodogram_averageChannels(epoch_baseline, epoch_MI_Start)
 
 %% Correlate Analysis : Spectrogram
 % load epoching data
-load('./../outputs/output_sacha/epoch_MI_Stop.mat');
-load('./../outputs/output_sacha/epoch_MI_Start.mat');
-load('./../outputs/output_sacha/epoch_baseline.mat');
+load('./../outputs/output_thomas/epoch_MI_Stop.mat');
+load('./../outputs/output_thomas/epoch_MI_Start.mat');
+load('./../outputs/output_thomas/epoch_baseline.mat');
 
 % spectrogram parameters
 fs = epoch_MI_Start.sampling_frequency;
@@ -101,7 +101,7 @@ plot_all_spectrogram(ERD_ERS_mat_stop, t_stop, f_stop)
 %% Feature Extraction - Average perf and fisher score across CV
 
 %Load Epochs
-load('./../outputs/output_sacha/epoch_MI_Stop.mat')
+load('./../outputs/output_thomas/epoch_MI_Stop.mat')
 
 %Fixed parameters
 trials = epoch_MI_Stop.trial;
