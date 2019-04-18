@@ -31,9 +31,11 @@ load('./../data_online/laplacian_16_10-20_mi.mat');
 
 % Spatial filtering 
 FilteredData = preprocess_all_run(RunsData, lap, true);
+FilteredDataOnline = preprocess_all_run(RunsDataOnline, lap, true);
 
 % save the data in .mat 
 save('../outputs/output_thomas_online/FilteredRunsData.mat','FilteredData')
+save('../outputs/output_thomas_online/FilteredRunsDataOnline.mat','FilteredDataOnline')
     
 
 %% Epoching
@@ -54,7 +56,7 @@ epoch_MI_Stop = epoching_from_event(FilteredData, 555, 3, 3);
 save('../outputs/output_thomas_online/epoch_MI_Stop.mat','epoch_MI_Stop')
 
 
-%% Feature Extraction - Model Training
+%% Feature Extraction
 
 %Load Epochs
 load('./../outputs/output_thomas_online/epoch_MI_Stop.mat')
@@ -73,11 +75,72 @@ stop_ERS = 2.5;
 %windows on MI event and 17 windows on STOP event
 features_mat = feat_extraction(trials, time, win, shift, start_ERD, stop_ERD, start_ERS, stop_ERS);
 
-nFeatKept = 6;
-% Plot (1) boxplot of CV accuracies and  (2) average ROC curves
-% LDA classifier keaping 'nFeatKept' firt best features (based on fisher score)
-[model, mu, sigma] = model_train_for_online(features_mat,nFeatKept)
-
-
 
 %% Model building
+
+% LDA classifier keaping 'nFeatKept' firt best features (based on fisher score)
+nFeatKept = 6;
+[model, mu, sigma,orderedInd] = model_train_for_online(features_mat,nFeatKept);
+
+
+%% Testing
+
+fs = RunsDataOnline.sampling_rate;
+n = length(RunsDataOnline.signal(1,:));
+i=1;
+y_list = [];
+prob_list = [];
+prob_list_filtered = [];
+
+Mi_start_times = floor(RunsDataOnline.event.action_pos(RunsDataOnline.event.action_type == 300)/32);
+Mi_stop_times = floor(RunsDataOnline.event.action_pos(RunsDataOnline.event.action_type == 555)/32);
+
+
+alpha = 0.96;
+beta = 0.04;
+
+t = []
+
+while i<(n-fs)
+    tic;
+    start = i;
+    stop = i+fs-1;
+    test = RunsDataOnline.signal(:,start:stop);
+    test = reshape(test,[1,16,512]);
+
+    feat_online = windowing_online(test);
+    
+    feat_online_norm = (feat_online-mu)./sigma;
+    
+    feat_online_kept = feat_online_norm(:,orderedInd(1:nFeatKept));
+    
+    [y,score] = predict(model, feat_online_kept);
+    i = i+32;
+    y_list = [y_list [y]];
+    prob_list = [prob_list score(1)];
+    
+    if length(prob_list)<2
+        prob_list_filtered(end+1) = 0.5;
+    elseif ((i/32)>Mi_start_times(1) && length(Mi_start_times)>1) % To set the prob to 0.5 at MI_Start
+        prob_list_filtered(end+1) = 0.5;
+        Mi_start_times = Mi_start_times(2:end);
+    else
+        prob_list_filtered(end+1) = alpha*prob_list_filtered(end)+(1-alpha)*prob_list(end);
+    end   
+    t(end+1)=1000*toc;
+    
+end   
+
+windows = 1:1:length(y_list);
+Mi_start_times = floor(RunsDataOnline.event.action_pos(RunsDataOnline.event.action_type == 300)/32);
+ystart = zeros(length(Mi_start_times),1);
+ystop = ones(length(Mi_start_times),1);
+hold all
+plot(windows,prob_list_filtered)
+%plot(windows,prob_list)
+plot([Mi_start_times.';Mi_start_times.'],[ystart.';ystop.'],'r')
+plot([Mi_stop_times.';Mi_stop_times.'],[ystart.';ystop.'],'k')
+plot([1 windows(end)],[0.5 0.5],'linestyle','--','color','b')
+
+
+
