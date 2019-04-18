@@ -1,5 +1,5 @@
 function topo_plot( data, c_bar )
-% datav = vector of values at the corresponding locations.
+% data = vector of values at the corresponding locations.
 
 addpath(genpath('./../toolboxes/eeglab14_1_2b'));
 load('./../data/channel_location_16_10-20_mi.mat')
@@ -12,12 +12,9 @@ if c_bar
     c.Label.FontSize = 15;
 end
     
-topoplot(data, chanlocs16, 'colormap', 'jet', 'style', 'both', ...
+topoplot(data, chanlocs16, 'colormap', 'jet', 'style', 'straight', ...
     'electrodes', 'labelpoint', 'maplimits', clims);
 
-
-    
-    
 end
 
 

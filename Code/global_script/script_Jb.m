@@ -11,6 +11,7 @@ addpath('./../1_load_data');
 addpath('./../2_preprocessing');
 addpath('./../3_epoching');
 addpath('./../4_correlate_analysis');
+addpath('./../5_feature_extraction');
 
 %% Load data
 
@@ -54,6 +55,9 @@ save('../outputs/output_Jb/epoch_MI_Stop.mat','epoch_MI_Stop')
 
 %% Correlate Analysis : Periodogram
 
+oldpath = path;
+path('/Applications/MATLAB_R2018b.app/toolbox/signal',oldpath)
+
 %Load Epochs
     %load('./../outputs/output_antoine/epoch_baseline.mat')
     %load('./../outputs/output_antoine/epoch_MI_Start.mat')
@@ -88,6 +92,11 @@ window_time = 1;
 [ERD_ERS_mat_start, t_start, f_start] = compute_spectrogram(epoch_MI_Start, epoch_baseline, fs, window_time, non_overlap_time);
 [ERD_ERS_mat_stop, t_stop, f_stop] = compute_spectrogram(epoch_MI_Stop, epoch_baseline, fs, window_time, non_overlap_time);
 
+
+save('./../outputs/output_jb/ERD_ERS_mat_start.mat','ERD_ERS_mat_start')
+save('./../outputs/output_jb/ERD_ERS_mat_stop.mat','ERD_ERS_mat_stop')
+
+
 figure(4)
 %sgtitle('Spectrogram Centered on MI-Start')
 plot_all_spectrogram(ERD_ERS_mat_start, t_start, f_start)
@@ -97,27 +106,32 @@ figure(5)
 plot_all_spectrogram(ERD_ERS_mat_stop, t_stop, f_stop)
 
 %% Correlate Analysis : Topoplots
-figure()
+%figure()
+topoplot_gif(ERD_ERS_mat_start,t_start, './../outputs/output_jb/')
 
-j=1;
-for time=1:5
-    xwx=mean(ERD_ERS_mat_start(20, find(t_start==time),:,:), 3);
-    
-    subplot(2,3,j)
-    topo_plot(squeeze(xwx),true);
-    title(['Time ',int2str(time-3)])
-    
-%     if j==3
-%         title('Topoplot', 'FontSize', 20)
-%     end
-    j=j+1;
-end  
+% figure()
+% j=1;
+% for time=1:5
+%     mean_=mean(ERD_ERS_mat_start(20, find(t_start==time),:,:), 3);
+%     
+%     subplot(2,3,j)
+%     topo_plot(squeeze(mean_),true);
+%     title(['Time ',int2str(time-3)])
+%     
+% %     if j==3
+% %         title('Topoplot', 'FontSize', 20)
+% %     end
+%     j=j+1;
+% end  
+
+
+% make a gif 
 
 %% Feature Extraction
 % avoid conflict with pwelch function of eeglab toolbox
+
 oldpath = path;
 path('/Applications/MATLAB_R2018b.app/toolbox/signal',oldpath)
-
 
 
 trials = epoch_MI_Stop.trial;
@@ -129,11 +143,23 @@ stop_ERD = 0;
 start_ERS = 0.5;
 stop_ERS = 2.5;
 
-% generate the feature array
+% Get features matrix (power densitiy for all 304 features (16channels x 19freq) for 17
+%windows on MI event and 17 windows on STOP event
 features_mat = feat_extraction(trials, time, win, shift, start_ERD, stop_ERD, start_ERS, stop_ERS);
 
 % save outputs feature matrix
-save('../outputs/output_jb/features.mat','features_mat')
+save('./../outputs/output_jb/features.mat','features_mat')
 
 %% Model building
+kfold = 10;
+nFeatKept = 6;
+% Plot (1) boxplot of CV accuracies and  (2) average ROC curves
+% LDA classifier keaping 'nFeatKept' firt best features (based on fisher score)
+[~,~,~,~,fisher_scores,ord_features] = CV_avg_performance_and_featScore(kfold,features_mat,nFeatKept);
+
+%Plot a heatmap channel vs freq, with avg fisher score
+[fisherScore_map] = avg_fisherScore(fisher_scores,ord_features,kfold);
+
+
+
 
