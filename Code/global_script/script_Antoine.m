@@ -43,7 +43,6 @@ FilteredData = preprocess_all_run(RunsData, lap, true);
 
 % save the data in .mat 
 save('../outputs/output_antoine/FilteredRunsData.mat','FilteredData')
-    
 
 %% Epoching
 
@@ -77,14 +76,17 @@ channel_lab = {RunsData(1).channel_loc.labels};
 figure(1)
 channel_num = 16;
 periodogram_plot_oneChannel(BL_power, BL_freq, MI_power, MI_freq, channel_num,channel_lab)%epoch_baseline, epoch_MI_Start, channel_num,channel_lab)
+%savefig('periodogram.fig')
 
 % Periodogram for ALL 16 channels in one plot
 figure(2)
 periodogram_allChannels(BL_power, BL_freq, MI_power, MI_freq, channel_lab)%epoch_baseline, epoch_MI_Start, channel_lab)
+savefig('../../Figures/antoine/all_periodogram_antoine.fig')
 
 % Periodogram for average over channels and trials
 figure(3)
 periodogram_averageChannels(BL_power, BL_freq, MI_power, MI_freq)%epoch_baseline, epoch_MI_Start)
+savefig('../../Figures/antoine/avg_periodogram_antoine.fig')
 
 %% Correlate Analysis : Spectrogram
 % load epoching data
@@ -104,10 +106,12 @@ window_time = 1;
 figure(4)
 sgtitle('Spectrogram Centered on MI-Start')
 plot_all_spectrogram(ERD_ERS_mat_start, t_start, f_start)
+savefig('../../Figures/antoine/MIstart_spectrogram_antoine.fig')
 
 figure(5)
 sgtitle('Spectrogram Centered on MI-Stop')
 plot_all_spectrogram(ERD_ERS_mat_stop, t_stop, f_stop)
+savefig('../../Figures/antoine/MIstop_spectrogram_antoine.fig')
 
 % save outputs
 save('../outputs/output_antoine/ERD_ERS_mat_start.mat','ERD_ERS_mat_start')
@@ -119,17 +123,44 @@ figure(6)
 
 j=1;
 for time=1:5
-    xwx=mean(ERD_ERS_mat_start(20, find(t_start==time),:,:), 3);
+    xwx=mean(mean(ERD_ERS_mat_start(20:30, find(t_start==time),:,:),3), 1);
+    add_cbar = false;
+    if time==5
+        add_cbar = true;
+    end
     
-    subplot(2,3,j)
-    topo_plot(squeeze(xwx),true);
-    title(['Time ',int2str(time-3)])
+    subplot(1,5,j)
+    originalSize = get(gca, 'Position');
+    topo_plot(squeeze(xwx),add_cbar);
+    set(gca, 'Position', originalSize);
+    title(['Time ',num2str(time-3.5), ' : ', num2str(time-2.5)])
     
-%     if j==3
-%         title('Topoplot', 'FontSize', 20)
-%     end
     j=j+1;
 end
+sgtitle('Topoplot Centered on MI-Start')
+savefig('../../Figures/antoine/MIstart_topoplot_antoine.fig')
+
+figure(7)
+
+j=1;
+for time=1:5
+    xwx=mean(mean(ERD_ERS_mat_stop(20:30, find(t_start==time),:,:),3), 1);
+    
+    add_cbar = false;
+    if time==5
+        add_cbar = true;
+    end
+    
+    subplot(1,5,j)
+    originalSize = get(gca, 'Position');
+    topo_plot(squeeze(xwx),add_cbar);
+    set(gca, 'Position', originalSize);
+    title(['Time ',num2str(time-3.5), ' : ', num2str(time-2.5)])
+
+    j=j+1;
+end
+sgtitle('Topoplot Centered on MI-Stop')
+savefig('../../Figures/antoine/MIstop_topoplot_antoine.fig')
 
 %% Feature Extraction
 
@@ -161,12 +192,7 @@ kfold = 10;
 nFeatKept = 6;
 % Plot (1) boxplot of CV accuracies and  (2) average ROC curves
 % LDA classifier keaping 'nFeatKept' firt best features (based on fisher score)
-[~,~,~,~,fisher_scores,ord_features] = CV_avg_performance_and_featScore(kfold,features_mat(:,:,1:70),nFeatKept);
+[~,~,~,~,fisher_scores,ord_features,~,~] = CV_avg_performance_and_featScore(kfold,features_mat(:,:,1:70),nFeatKept, true);
 
 %Plot a heatmap channel vs freq, with avg fisher score
 [fisherScore_map] = avg_fisherScore(fisher_scores,ord_features,kfold);
-
-
-
-
-

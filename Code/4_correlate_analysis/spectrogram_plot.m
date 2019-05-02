@@ -4,7 +4,7 @@ function spectrogram_plot(ERD_ERS_mat, t, f, title_plot)
     %        t -> 1D array representing the time vector
     %        f -> 1D array representing the frequency vector
     
-    clims = [-4 4];
+    clims = [-5 5];
     imagesc(ERD_ERS_mat, clims)
     colormap jet;
     c = colorbar;

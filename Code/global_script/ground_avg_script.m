@@ -61,10 +61,12 @@ periodogram_plot_oneChannel(mean_BL_power, BL_freq1, mean_MI_power, MI_freq1, ch
 % Periodogram for ALL 16 channels in one plot
 figure(2)
 periodogram_allChannels(mean_BL_power, BL_freq1, mean_MI_power, MI_freq1, channel_lab)
+savefig('../../Figures/Grand_avg/all_periodogram_GrandAvg.fig')
 
 % Periodogram for average over channels and trials
 figure(3)
 periodogram_averageChannels(mean_BL_power, BL_freq1, mean_MI_power, MI_freq1)
+savefig('../../Figures/Grand_avg/avg_periodogram_GrandAvg.fig')
 
 %% Correlate Analysis : Spectrogram 
 
@@ -83,6 +85,7 @@ f_start = [0:1:40]';
 figure()
 sgtitle('Spectrogram Centered on MI-Start')
 plot_all_spectrogram(ground_ERD_ERS_start, t_start, f_start)
+savefig('../../Figures/Grand_avg/MIstart_spectrogram_GrandAvg.fig')
 
 % FOR MI_STOP
 m1 = load('./../outputs/output_antoine/ERD_ERS_mat_stop.mat');
@@ -98,21 +101,51 @@ f_stop = [0:1:40]';
 figure()
 sgtitle('Spectrogram Centered on MI-Stop')
 plot_all_spectrogram(ground_ERD_ERS_stop, t_stop, f_stop)
+savefig('../../Figures/Grand_avg/MIstop_spectrogram_GrandAvg.fig')
 
 %% Correlate Analysis : Topoplot
 
 figure()
-
 j=1;
 for time=1:5
-    xwx=mean(ground_ERD_ERS_start(20, find(t_start==time),:,:), 3);
+    xwx=mean(mean(mean(all_ERD_ERS_start(20:30, find(t_start==time),:,:),3), 1), 5);
     
-    subplot(2,3,j)
-    topo_plot(squeeze(xwx),true);
-    title(['Time ',int2str(time-3)])
+    add_cbar = false;
+    if time==5
+        add_cbar = true;
+    end
+    
+    subplot(1,5,j)
+    originalSize = get(gca, 'Position');
+    topo_plot(squeeze(xwx),add_cbar);
+    set(gca, 'Position', originalSize);
+    title(['Time : ', num2str(time-3.5), ' : ', num2str(time-2.5)])
     
     j=j+1;
 end  
+sgtitle('Topoplot Centered on MI-Start')
+savefig('../../Figures/Grand_avg/MIstart_topoplot_GrandAvg.fig')
+
+figure()
+j=1;
+for time=1:5
+    xwx=mean(mean(mean(all_ERD_ERS_stop(20:30, find(t_start==time),:,:),3), 1), 5);
+    
+    add_cbar = false;
+    if time==5
+        add_cbar = true;
+    end
+    
+    subplot(1,5,j)
+    originalSize = get(gca, 'Position');
+    topo_plot(squeeze(xwx),add_cbar);
+    set(gca, 'Position', originalSize);
+    title(['Time : ', num2str(time-3.5), ' : ', num2str(time-2.5)])
+    
+    j=j+1;
+end 
+sgtitle('Topoplot Centered on MI-Stop')
+savefig('../../Figures/Grand_avg/MIstop_topoplot_GrandAvg.fig')
 
 %% Model Building
 
@@ -148,8 +181,8 @@ for i = 1:1:size(fmat,2)
     yroc_train{end+1} = yroc_train_avg;
     xroc_test{end+1} = xroc_test_avg;
     yroc_test{end+1} = yroc_test_avg;
-    accuracy_train = cat(1, accuracy_train, acc_train);
-    accuracy_test = cat(1, accuracy_test, acc_test);
+    accuracy_train = cat(1, accuracy_train, mean(acc_train));
+    accuracy_test = cat(1, accuracy_test, mean(acc_test));
  end
 
 % average in dimension of subject 
