@@ -70,18 +70,21 @@ save('../outputs/output_antoine/epoch_MI_Stop.mat','epoch_MI_Stop')
     %runData = load('./../outputs/output_antoine/runsData.mat'); % <- uncomment to load directly from output folder
 channel_lab = {RunsData(1).channel_loc.labels};
 
+[BL_power, BL_freq] = power_compute(epoch_baseline);
+[MI_power, MI_freq] = power_compute(epoch_MI_Start);
+
 % Periodogram for ONE channel
 figure(1)
 channel_num = 16;
-periodogram_plot_oneChannel(epoch_baseline, epoch_MI_Start, channel_num,channel_lab)
+periodogram_plot_oneChannel(BL_power, BL_freq, MI_power, MI_freq, channel_num,channel_lab)%epoch_baseline, epoch_MI_Start, channel_num,channel_lab)
 
 % Periodogram for ALL 16 channels in one plot
 figure(2)
-periodogram_allChannels(epoch_baseline, epoch_MI_Start, channel_lab)
+periodogram_allChannels(BL_power, BL_freq, MI_power, MI_freq, channel_lab)%epoch_baseline, epoch_MI_Start, channel_lab)
 
 % Periodogram for average over channels and trials
 figure(3)
-periodogram_averageChannels(epoch_baseline, epoch_MI_Start)
+periodogram_averageChannels(BL_power, BL_freq, MI_power, MI_freq)%epoch_baseline, epoch_MI_Start)
 
 %% Correlate Analysis : Spectrogram
 % load epoching data
@@ -154,7 +157,6 @@ features_mat = feat_extraction(trials, time, win, shift, start_ERD, stop_ERD, st
 save('../outputs/output_antoine/features.mat','features_mat')
 
 %% Model building
-
 kfold = 10;
 nFeatKept = 6;
 % Plot (1) boxplot of CV accuracies and  (2) average ROC curves

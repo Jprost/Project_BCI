@@ -15,63 +15,56 @@ addpath('./../3_epoching');
 addpath('./../4_correlate_analysis');
 addpath('./../5_feature_extraction');
 
-%% Recover saved Epoching arrays (epoch_MI_start & epoch_MI_stop & epoch_baseline) for all subjects
-% MI_start epochs
-% m1 = load('./../outputs/output_antoine/epoch_MI_Start.mat');
-% m2 = load('./../outputs/output_JB/epoch_MI_Start.mat');
-% m3 = load('./../outputs/output_sacha/epoch_MI_Start.mat');
-% m4 = load('./../outputs/output_Thomas/epoch_MI_Start.mat');
-% 
-% MI_start = m1.epoch_MI_Start;
-% MI_start.trial = epochs_for_all_subjects({m1.epoch_MI_Start.trial, m2.epoch_MI_Start.trial, m3.epoch_MI_Start.trial, m4.epoch_MI_Start.trial});
-% 
-% % MI_stop epochs
-% m1 = load('./../outputs/output_antoine/epoch_MI_Stop.mat');
-% m2 = load('./../outputs/output_JB/epoch_MI_Stop.mat');
-% m3 = load('./../outputs/output_sacha/epoch_MI_Stop.mat');
-% m4 = load('./../outputs/output_Thomas/epoch_MI_Stop.mat');
-% 
-% MI_stop = m1.epoch_MI_Stop;
-% MI_stop.trial = epochs_for_all_subjects({m1.epoch_MI_Stop.trial, m2.epoch_MI_Stop.trial, m3.epoch_MI_Stop.trial, m4.epoch_MI_Stop.trial});
-% 
-% % baseline epochs
-% m1 = load('./../outputs/output_antoine/epoch_baseline.mat');
-% m2 = load('./../outputs/output_JB/epoch_baseline.mat');
-% m3 = load('./../outputs/output_sacha/epoch_baseline.mat');
-% m4 = load('./../outputs/output_Thomas/epoch_baseline.mat');
-% 
-% baseline = m1.epoch_baseline;
-% baseline.trial = epochs_for_all_subjects({m1.epoch_baseline.trial, m2.epoch_baseline.trial, m3.epoch_baseline.trial, m4.epoch_baseline.trial});
-% 
-% % in the end --> Structures with, as trial, a 4D array for the 4 subjects
-% 
-% % save output
-% save('../outputs/output_ground_avg/epoch_MI_Start.mat','MI_start')
-% save('../outputs/output_ground_avg/epoch_MI_Stop.mat','MI_stop')
-% save('../outputs/output_ground_avg/epoch_baseline.mat','baseline')
-% 
-% %% Mean epochs over subjects without considering padding NaN
-% 
-% MI_start.trial = mean(MI_start.trial, 4, 'omitnan');
-% MI_stop.trial = mean(MI_stop.trial, 4, 'omitnan');
-% baseline.trial = mean(baseline.trial, 4, 'omitnan');
-% 
-% %% Correlate Analysis : Periodogram
-% load(channel_loc_path)
-% channel_lab = {chanlocs16.labels};
-% 
-% % Periodogram for ONE channel
-% figure(1)
-% channel_num = 16;
-% periodogram_plot_oneChannel(baseline, MI_start, channel_num, channel_lab)
-% 
-% % Periodogram for ALL 16 channels in one plot
-% figure(2)
-% periodogram_allChannels(baseline, MI_start, channel_lab)
-% 
-% % Periodogram for average over channels and trials
-% figure(3)
-% periodogram_averageChannels(baseline, MI_start)
+%% Correlate Analysis : Periodogram
+oldpath = path;
+path('/Applications/MATLAB_R2018b.app/toolbox/signal',oldpath)
+
+m1 = load('./../outputs/output_antoine/epoch_MI_Start.mat');
+m2 = load('./../outputs/output_JB/epoch_MI_Start.mat');
+m3 = load('./../outputs/output_sacha/epoch_MI_Start.mat');
+m4 = load('./../outputs/output_Thomas/epoch_MI_Start.mat');
+
+b1 = load('./../outputs/output_antoine/epoch_baseline.mat');
+b2 = load('./../outputs/output_JB/epoch_baseline.mat');
+b3 = load('./../outputs/output_sacha/epoch_baseline.mat');
+b4 = load('./../outputs/output_Thomas/epoch_baseline.mat');
+
+[BL_power1, BL_freq1] = power_compute(b1.epoch_baseline);
+[MI_power1, MI_freq1] = power_compute(m1.epoch_MI_Start);
+
+[BL_power2, BL_freq2] = power_compute(b2.epoch_baseline);
+[MI_power2, MI_freq2] = power_compute(m2.epoch_MI_Start);
+
+[BL_power3, BL_freq3] = power_compute(b3.epoch_baseline);
+[MI_power3, MI_freq3] = power_compute(m3.epoch_MI_Start);
+
+[BL_power4, BL_freq4] = power_compute(b4.epoch_baseline);
+[MI_power4, MI_freq4] = power_compute(m4.epoch_MI_Start);
+%Power is of dimension : Channel x Power x trials
+%%
+% concat all power in the 4th dimension and fill 'holes' with nan
+all_BL_power = padcat_power({BL_power1, BL_power2, BL_power3, BL_power4}, 4);
+all_MI_power = padcat_power({MI_power1, MI_power2, MI_power3, MI_power4}, 4);
+
+% mean on the 4th dimension by omitting nan
+mean_BL_power = mean(all_BL_power, 4, 'omitnan');
+mean_MI_power = mean(all_MI_power, 4, 'omitnan');
+
+% plot
+load(channel_loc_path)
+channel_lab = {chanlocs16.labels};
+
+figure(1)
+channel_num = 16;
+periodogram_plot_oneChannel(mean_BL_power, BL_freq1, mean_MI_power, MI_freq1, channel_num,channel_lab)
+
+% Periodogram for ALL 16 channels in one plot
+figure(2)
+periodogram_allChannels(mean_BL_power, BL_freq1, mean_MI_power, MI_freq1, channel_lab)
+
+% Periodogram for average over channels and trials
+figure(3)
+periodogram_averageChannels(mean_BL_power, BL_freq1, mean_MI_power, MI_freq1)
 
 %% Correlate Analysis : Spectrogram 
 
@@ -94,10 +87,10 @@ plot_all_spectrogram(ground_ERD_ERS_start, t_start, f_start)
 % FOR MI_STOP
 m1 = load('./../outputs/output_antoine/ERD_ERS_mat_stop.mat');
 m2 = load('./../outputs/output_JB/ERD_ERS_mat_stop.mat');
-%m3 = load('./../outputs/output_sacha/ERD_ERS_mat_stop.mat');
+m3 = load('./../outputs/output_sacha/ERD_ERS_mat_stop.mat');
 m4 = load('./../outputs/output_Thomas/ERD_ERS_mat_stop.mat');
 
-all_ERD_ERS_stop = padcat_ERDERS({m1.ERD_ERS_mat_stop, m2.ERD_ERS_mat_stop, m4.ERD_ERS_mat_stop}, 5); 
+all_ERD_ERS_stop = padcat_ERDERS({m1.ERD_ERS_mat_stop, m2.ERD_ERS_mat_stop, m3.ERD_ERS_mat_stop m4.ERD_ERS_mat_stop}, 5); 
 ground_ERD_ERS_stop = mean(all_ERD_ERS_stop, 5, 'omitnan');
 t_stop = 0.5:0.0625:5.5;
 f_stop = [0:1:40]';
@@ -127,9 +120,9 @@ end
 f1 = load('./../outputs/output_antoine/features.mat');
 f2 = load('./../outputs/output_sacha/features.mat');
 f3 = load('./../outputs/output_JB/features.mat');
-%f4 = load('./../outputs/output_thomas/features.mat');
+f4 = load('./../outputs/output_thomas/features.mat');
 
-fmat = {f1.features_mat(:,:,1:70), f2.features_mat, f3.features_mat};%, f4.features_mat};
+fmat = {f1.features_mat(:,:,1:70), f2.features_mat, f3.features_mat, f4.features_mat};
 
 fisher_scores_all = [];
 ord_features_all = [];
@@ -137,6 +130,8 @@ xroc_train = {};
 yroc_train = {};
 xroc_test = {};
 yroc_test = {};
+accuracy_train = [];
+accuracy_test =[];
 
 % build model for each feature_mat & concatenate output on single matrices
 kfold = 10;
@@ -145,7 +140,7 @@ nFeatKept = 6;
 % Plot (1) boxplot of CV accuracies and  (2) average ROC curves
 % LDA classifier keaping 'nFeatKept' firt best features (based on fisher score)
 for i = 1:1:size(fmat,2)
-    [xroc_train_avg,yroc_train_avg,xroc_test_avg,yroc_test_avg,fisher_scores,ord_features] = CV_avg_performance_and_featScore(kfold,cell2mat(fmat(i)),nFeatKept);
+    [xroc_train_avg,yroc_train_avg,xroc_test_avg,yroc_test_avg,fisher_scores,ord_features, acc_train, acc_test] = CV_avg_performance_and_featScore(kfold,cell2mat(fmat(i)),nFeatKept, false);
 
     fisher_scores_all = cat(3, fisher_scores_all, fisher_scores);
     ord_features_all = cat(3, ord_features_all, ord_features);
@@ -153,6 +148,8 @@ for i = 1:1:size(fmat,2)
     yroc_train{end+1} = yroc_train_avg;
     xroc_test{end+1} = xroc_test_avg;
     yroc_test{end+1} = yroc_test_avg;
+    accuracy_train = cat(1, accuracy_train, acc_train);
+    accuracy_test = cat(1, accuracy_test, acc_test);
  end
 
 % average in dimension of subject 
@@ -160,8 +157,15 @@ xroc_train_ground = mean(padcat1D(xroc_train,2), 2, 'omitnan');
 yroc_train_ground = mean(padcat1D(yroc_train,2), 2, 'omitnan');
 xroc_test_ground = mean(padcat1D(xroc_test,2), 2, 'omitnan');
 yroc_test_ground = mean(padcat1D(yroc_test,2), 2, 'omitnan');
+accuracy_train_ground = accuracy_train;%mean(accuracy_train, 2);
+accuracy_test_ground = accuracy_test;%mean(accuracy_test, 2);
 
 % do plots
+figure
+x = [accuracy_train_ground, accuracy_test_ground];
+boxplot(x,'Labels',{'train accuracy','test accuracy'})
+title('Model train/test accuracies over all subjects')
+
 figure
 hold on;
 plot(xroc_train_ground,yroc_train_ground,'Color',[1,0.5,0.3,1], 'Linewidth',3)

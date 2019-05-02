@@ -1,10 +1,10 @@
-function [] = periodogram_plot_oneChannel(data_Basline,data_MI,channel,channel_lab)
+function [] = periodogram_plot_oneChannel(BL_power, BL_freq, MI_power, MI_freq, channel, channel_lab)%data_Basline,data_MI,channel,channel_lab)
     %UNTITLED2 Summary of this function goes here
     %   Detailed explanation goes here
 
     %Compute PSD for both baseline and MI onset
-    [BL_power, BL_freq] = power_compute(data_Basline);
-    [MI_power, MI_freq] = power_compute(data_MI);
+    %[BL_power, BL_freq] = power_compute(data_Basline);
+    %[MI_power, MI_freq] = power_compute(data_MI);
     %Power is of dimension : Channel x Power x trials
     
     %Select the right channels, and mean over all trial (epcohs)

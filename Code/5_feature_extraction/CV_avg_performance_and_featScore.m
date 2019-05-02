@@ -1,4 +1,4 @@
-function [xroc_train_avg,yroc_train_avg,xroc_test_avg,yroc_test_avg,fisher_scores,ord_features] = CV_avg_performance_and_featScore(kfold,features_matrix,nFeatKept)
+function [xroc_train_avg,yroc_train_avg,xroc_test_avg,yroc_test_avg,fisher_scores,ord_features, acc_train, acc_test] = CV_avg_performance_and_featScore(kfold,features_matrix,nFeatKept, do_plot)
 % Perform a kfold CrossValidation to have an unbiased accuracy estimation
 % of a LDA classifier, trying to discriminate MI task and offset (class 0
 % and 1), based on features being the power densitiy of given channels and
@@ -83,28 +83,29 @@ for iFold = 1:kfold
     
 end
 
-% ---- Plot BOXPLOT of cross-validation accuracies ----   
-train_cv_acc = mean(acc_train,1);
-test_cv_acc = mean(acc_test,1);
-figure
-x = [acc_train,acc_test];
-boxplot(x,'Labels',{'train accuracy','test accuracy'})
-title(join(['Model accuracy - CV 10 Fold - ',num2str(nFeatKept),' Features Kept']))
-
-% ---- Plot average ROC CURVES for predicting class 1 (
 xroc_train_avg = mean(xroc_train_avg,2);
 yroc_train_avg = mean(yroc_train_avg,2);
 xroc_test_avg = mean(xroc_test_avg,2);
 yroc_test_avg = mean(yroc_test_avg,2);
-figure
-plot(xroc_train_avg,yroc_train_avg,'b')
-hold on;
-plot(xroc_test_avg,yroc_test_avg,'r')
-xlabel('False positive rate') 
-ylabel('True positive rate')
-legend('train','test')
-title('ROC for Classification, Class 1 (Offset)')
 
+if(do_plot)
+    % ---- Plot BOXPLOT of cross-validation accuracies ----   
+    train_cv_acc = mean(acc_train,1);
+    test_cv_acc = mean(acc_test,1);
+    figure
+    x = [acc_train,acc_test];
+    boxplot(x,'Labels',{'train accuracy','test accuracy'})
+    title(join(['Model accuracy - CV 10 Fold - ',num2str(nFeatKept),' Features Kept']))
 
+    % ---- Plot average ROC CURVES for predicting class 1 (
+    figure
+    plot(xroc_train_avg,yroc_train_avg,'b')
+    hold on;
+    plot(xroc_test_avg,yroc_test_avg,'r')
+    xlabel('False positive rate') 
+    ylabel('True positive rate')
+    legend('train','test')
+    title('ROC for Classification, Class 1 (Offset)')
+end
 end
 

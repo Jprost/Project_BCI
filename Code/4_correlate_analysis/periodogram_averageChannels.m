@@ -1,10 +1,10 @@
-function [] = periodogram_averageChannels(data_Basline,data_MI)
+function [] = periodogram_averageChannels(BL_power, BL_freq, MI_power, MI_freq)%data_Basline,data_MI)
     %UNTITLED2 Summary of this function goes here
     %   Detailed explanation goes here
 
     %Channel x Power x trials
-    [BL_power, BL_freq] = power_compute(data_Basline);
-    [MI_power, MI_freq] = power_compute(data_MI);
+    %[BL_power, BL_freq] = power_compute(data_Basline);
+    %[MI_power, MI_freq] = power_compute(data_MI);
 
     %MEAN OVER ALL 16 channels, and ALL trials (epochs)
     BL_mean = mean(mean(BL_power,1),3);
