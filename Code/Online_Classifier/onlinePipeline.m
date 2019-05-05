@@ -68,8 +68,8 @@ MIstop = plot([Mi_stop_times.';Mi_stop_times.'],[ystart.';ystop.'],'k');
 plot([1 windows(end)],[0.5 0.5],'linestyle','--','color','b')
 xlabel('Window index')
 ylabel('Probability to belong to MI class')
-legend("Filtered probability")
+legend('Filtered probability')
 legend([MIstart(1), MIstop(1)], 'MI Start', 'MI Stop')
-title("Online run using a 1s long window")
+title('Online run using a 1s long window')
 end
 

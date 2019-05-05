@@ -32,11 +32,6 @@ TrainData_f = TrainData_norm(:,orderedInd(1:nFeatKept));
 model = fitcdiscr(TrainData_f, labels_mat_train, 'discrimtype', 'linear');   
 %[yhat_train,score_train] = predict(model, TrainData_f);
 %[yhat_test,score_test] = predict(model, TestData_f);
-
-
-
-
-
-
+ 
 end
 

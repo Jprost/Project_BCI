@@ -1,8 +1,9 @@
-function [] = topoplot_gif(matrix,times, output_path)
+function [] = topoplot_gif(matrix,lower_range, upper_range, times, output_path)
 % Builds animated gif file made of toptoplots.  
 %
 %INPUT:
 % matrix: a matrix of ERD_ERS (start of stop)
+% lower/upper_range :  ranges of frequency that are considered
 % times: the times of sampling where freq is computed
 
 
@@ -14,7 +15,7 @@ function [] = topoplot_gif(matrix,times, output_path)
     
 for t=1.0:1.00:nb_time_pts % undersampling TIMES
     
-    mean_=mean(matrix(20,t,:,:), 3);
+    mean_=mean(mean(matrix(lower_range:upper_range,t,:,:), 3),1);
     
     topo_plot(squeeze(mean_),true);
 

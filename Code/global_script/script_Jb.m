@@ -13,6 +13,8 @@ addpath('./../3_epoching');
 addpath('./../4_correlate_analysis');
 addpath('./../5_feature_extraction');
 
+figure_path='../../Figures/Jb/';
+
 %% Load data
 
 % data localisation
@@ -27,7 +29,6 @@ save('../outputs/output_Jb/runsData.mat','RunsData')
 
 % load the data from the outputs folder
 load('./../data/laplacian_16_10-20_mi.mat');
-    %load('./../outputs/output_antoine/runsData.mat') % <- uncomment to load directly from output folder
 
 % Spatial filtering 
 FilteredData = preprocess_all_run(RunsData, lap, true);
@@ -72,10 +73,12 @@ periodogram_plot_oneChannel(epoch_baseline, epoch_MI_Start, channel_num,channel_
 % Periodogram for ALL 16 channels in one plot
 figure(2)
 periodogram_allChannels(epoch_baseline, epoch_MI_Start, channel_lab)
+savefig([figure_path,'all_periodogram_jb.fig'])
 
 % Periodogram for average over channels and trials
 figure(3)
 periodogram_averageChannels(epoch_baseline, epoch_MI_Start)
+savefig([figure_path,'avg_periodogram_jb.fig'])
 
 %% Correlate Analysis : Spectrogram
 % load epoching data
@@ -98,34 +101,65 @@ save('./../outputs/output_jb/ERD_ERS_mat_stop.mat','ERD_ERS_mat_stop')
 
 
 figure(4)
-%sgtitle('Spectrogram Centered on MI-Start')
+sgtitle('Spectrogram Centered on MI-Start')
 plot_all_spectrogram(ERD_ERS_mat_start, t_start, f_start)
+savefig('../../Figures/Jb/MIstart_spectrogram_jb.fig')
 
 figure(5)
-%sgtitle('Spectrogram Centered on MI-Stop')
+sgtitle('Spectrogram Centered on MI-Stop')
 plot_all_spectrogram(ERD_ERS_mat_stop, t_stop, f_stop)
+savefig('../../Figures/Jb/MIstop_spectrogram_jb.fig')
+
+
 
 %% Correlate Analysis : Topoplots
 %figure()
-topoplot_gif(ERD_ERS_mat_start,t_start, './../outputs/output_jb/')
+lower_range= 20;
+upper_range= 30;
+topoplot_gif(ERD_ERS_mat_start,lower_range, upper_range,t_start, './../outputs/output_jb/')
 
-% figure()
-% j=1;
-% for time=1:5
-%     mean_=mean(ERD_ERS_mat_start(20, find(t_start==time),:,:), 3);
-%     
-%     subplot(2,3,j)
-%     topo_plot(squeeze(mean_),true);
-%     title(['Time ',int2str(time-3)])
-%     
-% %     if j==3
-% %         title('Topoplot', 'FontSize', 20)
-% %     end
-%     j=j+1;
-% end  
+figure(6)
 
+j=1;
+for time=1:5
+    xwx=mean(mean(ERD_ERS_mat_start(20:30, find(t_start==time),:,:),3), 1);
+    add_cbar = false;
+    if time==5
+        add_cbar = true;
+    end
+    
+    subplot(1,5,j)
+    originalSize = get(gca, 'Position');
+    topo_plot(squeeze(xwx),add_cbar);
+    set(gca, 'Position', originalSize);
+    title(['Time ',num2str(time-3.5), ' : ', num2str(time-2.5)])
+    
+    j=j+1;
+end
+sgtitle('Topoplot Centered on MI-Start')
+savefig('../../Figures/Jb/MIstart_topoplot_jb.fig')
 
-% make a gif 
+figure(7)
+
+j=1;
+for time=1:5
+    xwx=mean(mean(ERD_ERS_mat_stop(20:30, find(t_start==time),:,:),3), 1);
+    
+    add_cbar = false;
+    if time==5
+        add_cbar = true;
+    end
+    
+    subplot(1,5,j)
+    originalSize = get(gca, 'Position');
+    topo_plot(squeeze(xwx),add_cbar);
+    set(gca, 'Position', originalSize);
+    title(['Time ',num2str(time-3.5), ' : ', num2str(time-2.5)])
+
+    j=j+1;
+end
+sgtitle('Topoplot Centered on MI-Stop')
+savefig('../../Figures/Jb/MIstop_topoplot_jb.fig')
 
 %% Feature Extraction
 % avoid conflict with pwelch function of eeglab toolbox
@@ -155,11 +189,52 @@ kfold = 10;
 nFeatKept = 6;
 % Plot (1) boxplot of CV accuracies and  (2) average ROC curves
 % LDA classifier keaping 'nFeatKept' firt best features (based on fisher score)
-[~,~,~,~,fisher_scores,ord_features] = CV_avg_performance_and_featScore(kfold,features_mat,nFeatKept);
-
-%Plot a heatmap channel vs freq, with avg fisher score
+[~,~,~,~,fisher_scores,ord_features] = CV_avg_performance_and_featScore(kfold,features_mat,nFeatKept, true);
 [fisherScore_map] = avg_fisherScore(fisher_scores,ord_features,kfold);
 
+%% Model Comparison - Accuracies & ROC
+figure()
+[train_mean_acc, test_mean_acc, models_labels] = models_comparison(kfold, ...
+        features_mat,nFeatKept, true);
+
+savefig('../../Figures/Models/Accuracies_ROC.fig')
+%% Model Comparison - nFeats
+
+nFeats=5:20:105;
+mean_tr=zeros(length(nFeats),5);
+mean_te=zeros(length(nFeats),5);
+
+i=1;
+for nFeatKept=nFeats
+    [train_mean_acc, test_mean_acc, models_labels] = models_comparison(kfold, ...
+        features_mat,nFeatKept, false);
+    
+    mean_tr(i,:)=train_mean_acc;
+    mean_te(i,:)=test_mean_acc;
+    i=i+1;
+end
+
+%% ---- Plotting ---
+figure()
+for m=1:5
+    subplot(1,2,1)
+    title('Train accuracy')
+    plot(nFeats, mean_tr(:,m),'LineWidth', 1.5 );
+    ylim([65, 105]);
+    hold on;
+    grid on;
+end 
+legend(models_labels)
 
 
+for m=1:5
+    subplot(1,2,2)
+    title('Test accuracy')
+    plot(nFeats, mean_te(:,m), 'LineWidth', 1.5);
+    ylim([65, 105]);
+    hold on;
+    grid on;
+end
+legend(models_labels)
 
+savefig('../../Figures/Models/Nb_Features.fig')
