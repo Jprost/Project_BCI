@@ -59,26 +59,26 @@ save('../outputs/output_Jb/epoch_MI_Stop.mat','epoch_MI_Stop')
 oldpath = path;
 path('/Applications/MATLAB_R2018b.app/toolbox/signal',oldpath)
 
-%Load Epochs
-    %load('./../outputs/output_antoine/epoch_baseline.mat')
-    %load('./../outputs/output_antoine/epoch_MI_Start.mat')
-runData = load('./../outputs/output_Jb/runsData.mat');
-channel_lab = {runData.RunsData(1).channel_loc.labels};
+channel_lab = {RunsData(1).channel_loc.labels};
+
+[BL_power, BL_freq] = power_compute(epoch_baseline);
+[MI_power, MI_freq] = power_compute(epoch_MI_Stop);
 
 % Periodogram for ONE channel
 figure(1)
 channel_num = 16;
-periodogram_plot_oneChannel(epoch_baseline, epoch_MI_Start, channel_num,channel_lab)
+periodogram_plot_oneChannel(BL_power, BL_freq, MI_power, MI_freq, channel_num,channel_lab)%epoch_baseline, epoch_MI_Start, channel_num,channel_lab)
+%savefig('periodogram.fig')
 
 % Periodogram for ALL 16 channels in one plot
 figure(2)
-periodogram_allChannels(epoch_baseline, epoch_MI_Start, channel_lab)
-savefig([figure_path,'all_periodogram_jb.fig'])
+periodogram_allChannels(BL_power, BL_freq, MI_power, MI_freq, channel_lab)%epoch_baseline, epoch_MI_Start, channel_lab)
+savefig('../../Figures/Jb/all_periodogram_jb.fig')
 
 % Periodogram for average over channels and trials
 figure(3)
-periodogram_averageChannels(epoch_baseline, epoch_MI_Start)
-savefig([figure_path,'avg_periodogram_jb.fig'])
+periodogram_averageChannels(BL_power, BL_freq, MI_power, MI_freq)%epoch_baseline, epoch_MI_Start)
+savefig('../../Figures/Jb/avg_periodogram_jb.fig')
 
 %% Correlate Analysis : Spectrogram
 % load epoching data
@@ -101,14 +101,16 @@ save('./../outputs/output_jb/ERD_ERS_mat_stop.mat','ERD_ERS_mat_stop')
 
 
 figure(4)
-sgtitle('Spectrogram Centered on MI-Start')
-plot_all_spectrogram(ERD_ERS_mat_start, t_start, f_start)
-savefig('../../Figures/Jb/MIstart_spectrogram_jb.fig')
+%sgtitle('Spectrogram Centered on MI-Start')
+mean_ERD_ERS_mat_start= mean(squeeze(ERD_ERS_mat_start(:,:,:,:)),3);
+plot_all_spectrogram(mean_ERD_ERS_mat_start, t_start, f_start)
+%savefig('../../Figures/Jb/MIstart_spectrogram_jb.fig')
 
 figure(5)
-sgtitle('Spectrogram Centered on MI-Stop')
-plot_all_spectrogram(ERD_ERS_mat_stop, t_stop, f_stop)
-savefig('../../Figures/Jb/MIstop_spectrogram_jb.fig')
+%sgtitle('Spectrogram Centered on MI-Stop')
+mean_ERD_ERS_mat_stop= mean(squeeze(ERD_ERS_mat_stop(:,:,:,:)),3);
+plot_all_spectrogram(mean_ERD_ERS_mat_stop, t_stop, f_stop)
+%savefig('../../Figures/Jb/MIstop_spectrogram_jb.fig')
 
 
 
@@ -116,7 +118,7 @@ savefig('../../Figures/Jb/MIstop_spectrogram_jb.fig')
 %figure()
 lower_range= 20;
 upper_range= 30;
-topoplot_gif(ERD_ERS_mat_start,lower_range, upper_range,t_start, './../outputs/output_jb/')
+%topoplot_gif(ERD_ERS_mat_start,lower_range, upper_range,t_start, './../outputs/output_jb/')
 
 figure(6)
 
@@ -149,6 +151,8 @@ for time=1:5
     if time==5
         add_cbar = true;
     end
+    
+    
     
     subplot(1,5,j)
     originalSize = get(gca, 'Position');
@@ -196,6 +200,7 @@ nFeatKept = 6;
 figure()
 [train_mean_acc, test_mean_acc, models_labels] = models_comparison(kfold, ...
         features_mat,nFeatKept, true);
+
 
 savefig('../../Figures/Models/Accuracies_ROC.fig')
 %% Model Comparison - nFeats

@@ -1,4 +1,4 @@
-function spectrogram_plot(ERD_ERS_mat, t, f, title_plot)
+function spectrogram_plot(ERD_ERS_mat, t, f, title_plot, colorbar_bool)
     % INPUT: ERD_ERS_mat -> Spectrogram data to plot for a given channel (or mean over channels) or a given trial (or mean over trials)
     %              >>> 2D array : dim2 (x) = time ; dim1 (y) = frequency
     %        t -> 1D array representing the time vector
@@ -7,9 +7,13 @@ function spectrogram_plot(ERD_ERS_mat, t, f, title_plot)
     clims = [-5 5];
     imagesc(ERD_ERS_mat, clims)
     colormap jet;
-    c = colorbar;
-    c.Label.String = 'ERD/ERS [dB]';
-    c.Label.FontSize = 15;
+    
+    if colorbar_bool
+        c = colorbar;
+        c.Label.String = 'ERD/ERS [dB]';
+        c.Label.FontSize = 15;
+    end
+    
     title(title_plot, 'FontSize', 20)
     
     % set the xtick with the input time values
