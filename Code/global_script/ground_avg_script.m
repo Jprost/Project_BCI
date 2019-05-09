@@ -19,10 +19,10 @@ addpath('./../5_feature_extraction');
 oldpath = path;
 path('/Applications/MATLAB_R2018b.app/toolbox/signal',oldpath)
 
-m1 = load('./../outputs/output_antoine/epoch_MI_Start.mat');
-m2 = load('./../outputs/output_JB/epoch_MI_Start.mat');
-m3 = load('./../outputs/output_sacha/epoch_MI_Start.mat');
-m4 = load('./../outputs/output_Thomas/epoch_MI_Start.mat');
+m1 = load('./../outputs/output_antoine/epoch_MI_Stop.mat');
+m2 = load('./../outputs/output_JB/epoch_MI_Stop.mat');
+m3 = load('./../outputs/output_sacha/epoch_MI_Stop.mat');
+m4 = load('./../outputs/output_Thomas/epoch_MI_Stop.mat');
 
 b1 = load('./../outputs/output_antoine/epoch_baseline.mat');
 b2 = load('./../outputs/output_JB/epoch_baseline.mat');
@@ -30,16 +30,16 @@ b3 = load('./../outputs/output_sacha/epoch_baseline.mat');
 b4 = load('./../outputs/output_Thomas/epoch_baseline.mat');
 
 [BL_power1, BL_freq1] = power_compute(b1.epoch_baseline);
-[MI_power1, MI_freq1] = power_compute(m1.epoch_MI_Start);
+[MI_power1, MI_freq1] = power_compute(m1.epoch_MI_Stop);
 
 [BL_power2, BL_freq2] = power_compute(b2.epoch_baseline);
-[MI_power2, MI_freq2] = power_compute(m2.epoch_MI_Start);
+[MI_power2, MI_freq2] = power_compute(m2.epoch_MI_Stop);
 
 [BL_power3, BL_freq3] = power_compute(b3.epoch_baseline);
-[MI_power3, MI_freq3] = power_compute(m3.epoch_MI_Start);
+[MI_power3, MI_freq3] = power_compute(m3.epoch_MI_Stop);
 
 [BL_power4, BL_freq4] = power_compute(b4.epoch_baseline);
-[MI_power4, MI_freq4] = power_compute(m4.epoch_MI_Start);
+[MI_power4, MI_freq4] = power_compute(m4.epoch_MI_Stop);
 %Power is of dimension : Channel x Power x trials
 %%
 % concat all power in the 4th dimension and fill 'holes' with nan
@@ -54,19 +54,40 @@ mean_MI_power = mean(all_MI_power, 4, 'omitnan');
 load(channel_loc_path)
 channel_lab = {chanlocs16.labels};
 
-figure(1)
+figure()
 channel_num = 16;
 periodogram_plot_oneChannel(mean_BL_power, BL_freq1, mean_MI_power, MI_freq1, channel_num,channel_lab)
 
 % Periodogram for ALL 16 channels in one plot
-figure(2)
+figure()
 periodogram_allChannels(mean_BL_power, BL_freq1, mean_MI_power, MI_freq1, channel_lab)
 savefig('../../Figures/Grand_avg/all_periodogram_GrandAvg.fig')
 
 % Periodogram for average over channels and trials
-figure(3)
+figure()
 periodogram_averageChannels(mean_BL_power, BL_freq1, mean_MI_power, MI_freq1)
 savefig('../../Figures/Grand_avg/avg_periodogram_GrandAvg.fig')
+
+% save individual fig C3/Cz/C4/CP3/CP4
+figure()
+periodogram_plot_oneChannel(mean_BL_power, BL_freq1, mean_MI_power, MI_freq1, 7, channel_lab)
+savefig('../../Figures/Grand_avg/single_plot/periodogram_GrandAvg_C3.fig')
+
+figure()
+periodogram_plot_oneChannel(mean_BL_power, BL_freq1, mean_MI_power, MI_freq1, 9, channel_lab)
+savefig('../../Figures/Grand_avg/single_plot/periodogram_GrandAvg_Cz.fig')
+
+figure()
+periodogram_plot_oneChannel(mean_BL_power, BL_freq1, mean_MI_power, MI_freq1, 11, channel_lab)
+savefig('../../Figures/Grand_avg/single_plot/periodogram_GrandAvg_C4.fig')
+
+figure()
+periodogram_plot_oneChannel(mean_BL_power, BL_freq1, mean_MI_power, MI_freq1, 12, channel_lab)
+savefig('../../Figures/Grand_avg/single_plot/periodogram_GrandAvg_CP3.fig')
+
+figure()
+periodogram_plot_oneChannel(mean_BL_power, BL_freq1, mean_MI_power, MI_freq1, 16, channel_lab)
+savefig('../../Figures/Grand_avg/single_plot/periodogram_GrandAvg_CP4.fig')
 
 %% Correlate Analysis : Spectrogram 
 
@@ -77,15 +98,37 @@ m2 = load('./../outputs/output_JB/ERD_ERS_mat_start.mat');
 m3 = load('./../outputs/output_sacha/ERD_ERS_mat_start.mat');
 m4 = load('./../outputs/output_Thomas/ERD_ERS_mat_start.mat');
 
-all_ERD_ERS_start = padcat_ERDERS({m1.ERD_ERS_mat_start, m2.ERD_ERS_mat_start, m4.ERD_ERS_mat_start}, 5); 
-ground_ERD_ERS_start = mean(all_ERD_ERS_start, 5, 'omitnan');
+all_ERD_ERS_start = padcat_ERDERS({m1.ERD_ERS_mat_start, m2.ERD_ERS_mat_start, m3.ERD_ERS_mat_start, m4.ERD_ERS_mat_start}, 5); 
+%ground_ERD_ERS_start = mean(all_ERD_ERS_start, 5, 'omitnan');
 t_start = 0.5:0.0625:5.5;
 f_start = [0:1:40]';
 
 figure()
 sgtitle('Spectrogram Centered on MI-Start')
-plot_all_spectrogram(ground_ERD_ERS_start, t_start, f_start)
+mean_ERD_ERS_start = mean(mean(all_ERD_ERS_start, 3, 'omitnan'), 5); % first mean over trial then over subjects
+plot_all_spectrogram(mean_ERD_ERS_start, t_start-3, f_start)
 savefig('../../Figures/Grand_avg/MIstart_spectrogram_GrandAvg.fig')
+
+% save fig for C3/Cz/C4/CP3/CP4
+figure()
+spectrogram_plot(mean_ERD_ERS_start(:,:,7), t_start-3, f_start, 'C3', false)
+savefig('../../Figures/Grand_avg/single_plot/spectrogram_MIStart_GrandAvg_C3.fig')
+
+figure()
+spectrogram_plot(mean_ERD_ERS_start(:,:,9), t_start-3, f_start, 'Cz', true)
+savefig('../../Figures/Grand_avg/single_plot/spectrogram_MIStart_GrandAvg_Cz.fig')
+
+figure()
+spectrogram_plot(mean_ERD_ERS_start(:,:,11), t_start-3, f_start, 'C4', false)
+savefig('../../Figures/Grand_avg/single_plot/spectrogram_MIStart_GrandAvg_C4.fig')
+
+figure()
+spectrogram_plot(mean_ERD_ERS_start(:,:,12), t_start-3, f_start, 'CP3', false)
+savefig('../../Figures/Grand_avg/single_plot/spectrogram_MIStart_GrandAvg_CP3.fig')
+
+figure()
+spectrogram_plot(mean_ERD_ERS_start(:,:,16), t_start-3, f_start, 'CP4', false)
+savefig('../../Figures/Grand_avg/single_plot/spectrogram_MIStart_GrandAvg_CP4.fig')
 
 % FOR MI_STOP
 m1 = load('./../outputs/output_antoine/ERD_ERS_mat_stop.mat');
@@ -94,14 +137,36 @@ m3 = load('./../outputs/output_sacha/ERD_ERS_mat_stop.mat');
 m4 = load('./../outputs/output_Thomas/ERD_ERS_mat_stop.mat');
 
 all_ERD_ERS_stop = padcat_ERDERS({m1.ERD_ERS_mat_stop, m2.ERD_ERS_mat_stop, m3.ERD_ERS_mat_stop m4.ERD_ERS_mat_stop}, 5); 
-ground_ERD_ERS_stop = mean(all_ERD_ERS_stop, 5, 'omitnan');
+%ground_ERD_ERS_stop = mean(all_ERD_ERS_stop, 5, 'omitnan');
 t_stop = 0.5:0.0625:5.5;
 f_stop = [0:1:40]';
 
 figure()
 sgtitle('Spectrogram Centered on MI-Stop')
-plot_all_spectrogram(ground_ERD_ERS_stop, t_stop, f_stop)
+mean_ERD_ERS_stop = mean(mean(all_ERD_ERS_stop, 3, 'omitnan'), 5);
+plot_all_spectrogram(mean_ERD_ERS_stop, t_stop, f_stop)
 savefig('../../Figures/Grand_avg/MIstop_spectrogram_GrandAvg.fig')
+
+% save fig for C3/Cz/C4/CP3/CP4
+figure()
+spectrogram_plot(mean_ERD_ERS_stop(:,:,7), t_stop-3, f_stop, 'C3', false)
+savefig('../../Figures/Grand_avg/single_plot/spectrogram_MIStop_GrandAvg_C3.fig')
+
+figure()
+spectrogram_plot(mean_ERD_ERS_stop(:,:,9), t_stop-3, f_stop, 'Cz', true)
+savefig('../../Figures/Grand_avg/single_plot/spectrogram_MIStop_GrandAvg_Cz.fig')
+
+figure()
+spectrogram_plot(mean_ERD_ERS_stop(:,:,11), t_stop-3, f_stop, 'C4', false)
+savefig('../../Figures/Grand_avg/single_plot/spectrogram_MIStop_GrandAvg_C4.fig')
+
+figure()
+spectrogram_plot(mean_ERD_ERS_stop(:,:,12), t_stop-3, f_stop, 'CP3', false)
+savefig('../../Figures/Grand_avg/single_plot/spectrogram_MIStop_GrandAvg_CP3.fig')
+
+figure()
+spectrogram_plot(mean_ERD_ERS_stop(:,:,16), t_stop-3, f_stop, 'CP4', false)
+savefig('../../Figures/Grand_avg/single_plot/spectrogram_MIStop_GrandAvg_CP4.fig')
 
 %% Correlate Analysis : Topoplot
 
@@ -155,7 +220,7 @@ f2 = load('./../outputs/output_sacha/features.mat');
 f3 = load('./../outputs/output_JB/features.mat');
 f4 = load('./../outputs/output_thomas/features.mat');
 
-fmat = {f1.features_mat(:,:,1:70), f2.features_mat, f3.features_mat, f4.features_mat};
+fmat = {f1.features_mat(:,:,1:110), f2.features_mat, f3.features_mat, f4.features_mat};
 
 fisher_scores_all = [];
 ord_features_all = [];

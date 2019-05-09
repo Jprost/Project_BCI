@@ -31,7 +31,7 @@ save('../outputs/output_Jb/runsData.mat','RunsData')
 load('./../data/laplacian_16_10-20_mi.mat');
 
 % Spatial filtering 
-FilteredData = preprocess_all_run(RunsData, lap, true);
+FilteredData = preprocess_all_run(RunsData, lap, true, false);
 
 % save the data in .mat 
 save('../outputs/output_Jb/FilteredRunsData.mat','FilteredData')
@@ -95,10 +95,8 @@ window_time = 1;
 [ERD_ERS_mat_start, t_start, f_start] = compute_spectrogram(epoch_MI_Start, epoch_baseline, fs, window_time, non_overlap_time);
 [ERD_ERS_mat_stop, t_stop, f_stop] = compute_spectrogram(epoch_MI_Stop, epoch_baseline, fs, window_time, non_overlap_time);
 
-
 save('./../outputs/output_jb/ERD_ERS_mat_start.mat','ERD_ERS_mat_start')
 save('./../outputs/output_jb/ERD_ERS_mat_stop.mat','ERD_ERS_mat_stop')
-
 
 figure(4)
 %sgtitle('Spectrogram Centered on MI-Start')

@@ -39,7 +39,7 @@ load('./../data/laplacian_16_10-20_mi.mat');
     %load('./../outputs/output_antoine/runsData.mat') % <- uncomment to load directly from output folder
 
 % Spatial filtering 
-FilteredData = preprocess_all_run(RunsData, lap, true);
+FilteredData = preprocess_all_run(RunsData, lap, true, false);
 
 % save the data in .mat 
 save('../outputs/output_antoine/FilteredRunsData.mat','FilteredData')
@@ -70,7 +70,7 @@ save('../outputs/output_antoine/epoch_MI_Stop.mat','epoch_MI_Stop')
 channel_lab = {RunsData(1).channel_loc.labels};
 
 [BL_power, BL_freq] = power_compute(epoch_baseline);
-[MI_power, MI_freq] = power_compute(epoch_MI_Start);
+[MI_power, MI_freq] = power_compute(epoch_MI_Stop);
 
 % Periodogram for ONE channel
 figure(1)
@@ -105,12 +105,12 @@ window_time = 1;
 
 figure(4)
 sgtitle('Spectrogram Centered on MI-Start')
-plot_all_spectrogram(ERD_ERS_mat_start, t_start, f_start)
+plot_all_spectrogram(mean(ERD_ERS_mat_start,3), t_start, f_start)
 savefig('../../Figures/antoine/MIstart_spectrogram_antoine.fig')
 
 figure(5)
 sgtitle('Spectrogram Centered on MI-Stop')
-plot_all_spectrogram(ERD_ERS_mat_stop, t_stop, f_stop)
+plot_all_spectrogram(mean(ERD_ERS_mat_stop,3), t_stop, f_stop)
 savefig('../../Figures/antoine/MIstop_spectrogram_antoine.fig')
 
 % save outputs
@@ -192,7 +192,55 @@ kfold = 10;
 nFeatKept = 6;
 % Plot (1) boxplot of CV accuracies and  (2) average ROC curves
 % LDA classifier keaping 'nFeatKept' firt best features (based on fisher score)
-[~,~,~,~,fisher_scores,ord_features,~,~] = CV_avg_performance_and_featScore(kfold,features_mat(:,:,1:70),nFeatKept, true);
+[~,~,~,~,fisher_scores,ord_features,~,~] = CV_avg_performance_and_featScore(kfold,features_mat(:,:,1:110),nFeatKept, true);
 
 %Plot a heatmap channel vs freq, with avg fisher score
 [fisherScore_map] = avg_fisherScore(fisher_scores,ord_features,kfold);
+
+%% Model Comparison - Accuracies & ROC
+figure()
+[train_mean_acc, test_mean_acc, models_labels] = models_comparison(kfold, ...
+        features_mat,nFeatKept, true);
+
+
+savefig('../../Figures/Models/Accuracies_ROC.fig')
+%% Model Comparison - nFeats
+
+nFeats=5:20:105;
+mean_tr=zeros(length(nFeats),5);
+mean_te=zeros(length(nFeats),5);
+
+i=1;
+for nFeatKept=nFeats
+    [train_mean_acc, test_mean_acc, models_labels] = models_comparison(kfold, ...
+        features_mat,nFeatKept, false);
+    
+    mean_tr(i,:)=train_mean_acc;
+    mean_te(i,:)=test_mean_acc;
+    i=i+1;
+end
+
+%% ---- Plotting ---
+figure()
+for m=1:5
+    subplot(1,2,1)
+    title('Train accuracy')
+    plot(nFeats, mean_tr(:,m),'LineWidth', 1.5 );
+    ylim([65, 105]);
+    hold on;
+    grid on;
+end 
+legend(models_labels)
+
+
+for m=1:5
+    subplot(1,2,2)
+    title('Test accuracy')
+    plot(nFeats, mean_te(:,m), 'LineWidth', 1.5);
+    ylim([65, 105]);
+    hold on;
+    grid on;
+end
+legend(models_labels)
+
+savefig('../../Figures/Models/Nb_Features.fig')

@@ -38,7 +38,7 @@ load('./../data/laplacian_16_10-20_mi.mat');
     %load('./../outputs/output_antoine/runsData.mat') % <- uncomment to load directly from output folder
 
 % Spatial filtering 
-FilteredData = preprocess_all_run(RunsData, lap, true);
+FilteredData = preprocess_all_run(RunsData, lap, true, false);
 
 % save the data in .mat 
 save('../outputs/output_sacha/FilteredRunsData.mat','FilteredData')
@@ -105,12 +105,12 @@ window_time = 1;
 
 figure(4)
 %sgtitle('Spectrogram Centered on MI-Start')
-plot_all_spectrogram(ERD_ERS_mat_start, t_start, f_start)
+plot_all_spectrogram(mean(ERD_ERS_mat_start,3), t_start, f_start)
 savefig('../../Figures/sacha/MIstart_spectrogram_sacha.fig')
 
 figure(5)
 %sgtitle('Spectrogram Centered on MI-Stop')
-plot_all_spectrogram(ERD_ERS_mat_stop, t_stop, f_stop)
+plot_all_spectrogram(mean(ERD_ERS_mat_stop,3), t_stop, f_stop)
 savefig('../../Figures/sacha/MIstop_spectrogram_sacha.fig')
 
 % save outputs

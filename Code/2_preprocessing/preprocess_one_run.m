@@ -1,4 +1,4 @@
-function preprocessed_data = preprocess_one_run(raw_data, Laplacian, CAR)
+function preprocessed_data = preprocess_one_run(raw_data, Laplacian, CAR, filtering)
     
     % Preprocess the data by a Spatial filtering
     %INPUT : raw_data : input data 16x... array
@@ -13,10 +13,12 @@ function preprocessed_data = preprocess_one_run(raw_data, Laplacian, CAR)
         % neigbor averging
         spatial_filter = Laplacian;
     end
-    
-    [b,a] = butter(10,[4,35]/256,'bandpass');
+
     preprocessed_data = spatial_filter * raw_data;
-    preprocessed_data = (filtfilt(b,a,preprocessed_data.')).';
     
+    if filtering
+        [b,a] = butter(6,[7,35]/256,'bandpass');
+        preprocessed_data = (filter(b,a,preprocessed_data.')).';
+    end
 end
 

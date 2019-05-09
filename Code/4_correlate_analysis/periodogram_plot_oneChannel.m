@@ -18,7 +18,7 @@ function [] = periodogram_plot_oneChannel(BL_power, BL_freq, MI_power, MI_freq, 
     MI_SD = MI_SD(channel,:);
     
     hold on;
-    title(strcat('Periodogram for channel ',channel_lab(channel),', mean over trials'))
+    title(strcat('Periodogram for channel : ',channel_lab(channel),', mean over trials'))
     xlabel('Frequency [Hz]')
     ylabel('[dB/Hz]')
     plot(BL_freq,10*log10(BL_mean),'r','LineWidth',1)
@@ -31,7 +31,7 @@ function [] = periodogram_plot_oneChannel(BL_power, BL_freq, MI_power, MI_freq, 
     MI_shade = [(10*log10(MI_mean+MI_SD)) (fliplr( 10*log10(MI_mean) - ((10*log10(MI_mean+MI_SD))-10*log10(MI_mean)) ))];
     patch(freqBoth,BL_shade,'r','FaceAlpha',.3,'LineWidth',0.01)
     patch(freqBoth,MI_shade,'b','FaceAlpha',.3,'LineWidth',0.01)
-    legend('Baseline','Motor Imagery Start','Std over trials','Std over trials')
+    legend('Baseline','Motor Imagery Stop','Std over trials','Std over trials')
     
 end
 
