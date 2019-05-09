@@ -14,7 +14,9 @@ function preprocessed_data = preprocess_one_run(raw_data, Laplacian, CAR)
         spatial_filter = Laplacian;
     end
     
+    [b,a] = butter(10,[4,35]/256,'bandpass');
     preprocessed_data = spatial_filter * raw_data;
+    preprocessed_data = (filtfilt(b,a,preprocessed_data.')).';
     
 end
 
