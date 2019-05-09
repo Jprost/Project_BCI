@@ -19,6 +19,7 @@ prob_list_filtered = [];
 
 Mi_start_times = floor(RunsDataOnline.event.action_pos(RunsDataOnline.event.action_type == 300)/window_size);
 Mi_stop_times = floor(RunsDataOnline.event.action_pos(RunsDataOnline.event.action_type == 555)/window_size);
+Baseline_times = floor(RunsDataOnline.event.action_pos(RunsDataOnline.event.action_type == 200)/window_size);
 
 
 alpha = 0.96;
@@ -45,8 +46,11 @@ while i<(n-fs)
     
     if length(prob_list)<2
         prob_list_filtered(end+1) = 0.5;
-    elseif ((i/window_size)>Mi_start_times(1) && length(Mi_start_times)>1) % To set the prob to 0.5 at MI_Start
+    %elseif ((i/window_size)>Mi_start_times(1) && length(Mi_start_times)>1) % To set the prob to 0.5 at MI_Start
+    elseif ((i/window_size)>Baseline_times(1) && length(Baseline_times)>1) % To set the prob to 0.5 at beginning of BASELINE
         prob_list_filtered(end+1) = 0.5;
+        %prob_list_filtered(end+1) = alpha*prob_list_filtered(end)+(1-alpha)*prob_list(end); % TO REMOVE IF PUT 0.5
+        Baseline_times = Baseline_times(2:end);
         Mi_start_times = Mi_start_times(2:end);
     else
         prob_list_filtered(end+1) = alpha*prob_list_filtered(end)+(1-alpha)*prob_list(end);

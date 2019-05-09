@@ -9,6 +9,8 @@ addpath('./../2_preprocessing');
 addpath('./../3_epoching');
 addpath('./../4_correlate_analysis');
 addpath('./../5_feature_extraction');
+addpath('./../Online_Classifier');
+
 
 %% Load data
 
@@ -18,10 +20,17 @@ channel_loc_path = './../data/channel_location_16_10-20_mi.mat';
 
 % load the data
 RunsData = load_data_from_runs(datafolder_path, channel_loc_path);
+% clean the corrupt Run (n4) (missing data)
+% take only the event represented on the signal available and make sur the last event is a end of trial event (event_id = 700)
+len_corrupted_run = size(RunsData(4).signal, 2);
+upper_idx_to_keep = find((RunsData(4).event.action_pos < len_corrupted_run) & (RunsData(4).event.action_type == 700), 1, 'last');
+RunsData(4).event.action_pos = RunsData(4).event.action_pos(1:upper_idx_to_keep, :);
+RunsData(4).event.action_type = RunsData(4).event.action_type(1:upper_idx_to_keep, :);
 save('../outputs/output_antoine_online/runsData.mat','RunsData')
 
 % online data 
 RunsDataOnline = load_data_from_runs('./../data_online/data_Antoine/data_test/', channel_loc_path);
+
 
 %% Preprocess : Spatial Filtering
 

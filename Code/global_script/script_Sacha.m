@@ -26,8 +26,8 @@ RunsData = load_data_from_runs(datafolder_path, channel_loc_path);
 % take only the event represented on the signal available and make sur the last event is a end of trial event (event_id = 700)
 len_corrupted_run = size(RunsData(3).signal, 2);
 upper_idx_to_keep = find((RunsData(3).event.action_pos < len_corrupted_run) & (RunsData(3).event.action_type == 700), 1, 'last');
-RunsData(4).event.action_pos = RunsData(3).event.action_pos(1:upper_idx_to_keep, :);
-RunsData(4).event.action_type = RunsData(3).event.action_type(1:upper_idx_to_keep, :);
+RunsData(3).event.action_pos = RunsData(3).event.action_pos(1:upper_idx_to_keep, :);
+RunsData(3).event.action_type = RunsData(3).event.action_type(1:upper_idx_to_keep, :);
 
 save('../outputs/output_sacha/runsData.mat','RunsData')
 

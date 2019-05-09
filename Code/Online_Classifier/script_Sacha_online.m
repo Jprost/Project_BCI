@@ -9,19 +9,27 @@ addpath('./../2_preprocessing');
 addpath('./../3_epoching');
 addpath('./../4_correlate_analysis');
 addpath('./../5_feature_extraction');
+addpath('./../Online_Classifier');
 
 %% Load data
 
 % data localisation
-datafolder_path = './../data_online/data_Thomas/data_train/';
+datafolder_path = './../data_online/data_Sacha/data_train/';
 channel_loc_path = './../data/channel_location_16_10-20_mi.mat';
 
 % load the data
 RunsData = load_data_from_runs(datafolder_path, channel_loc_path);
-save('../outputs/output_thomas_online/runsData.mat','RunsData')
+save('../outputs/output_sacha_online/runsData.mat','RunsData')
 
 % online data 
-RunsDataOnline = load_data_from_runs('./../data_online/data_Thomas/data_test/', channel_loc_path);
+RunsDataOnline = load_data_from_runs('./../data_online/data_Sacha/data_test/', channel_loc_path);
+
+% clean the corrupt test Run (missing data)
+% take only the event represented on the signal available and make sur the last event is a end of trial event (event_id = 700)
+len_corrupted_run = size(RunsDataOnline(1).signal, 2);
+upper_idx_to_keep = find((RunsDataOnline(1).event.action_pos < len_corrupted_run) & (RunsDataOnline(1).event.action_type == 700), 1, 'last');
+RunsDataOnline(1).event.action_pos = RunsDataOnline(1).event.action_pos(1:upper_idx_to_keep, :);
+RunsDataOnline(1).event.action_type = RunsDataOnline(1).event.action_type(1:upper_idx_to_keep, :);
 
 %% Preprocess : Spatial Filtering
 
@@ -34,8 +42,8 @@ FilteredData = preprocess_all_run(RunsData, lap, true);
 FilteredDataOnline = preprocess_all_run(RunsDataOnline, lap, true);
 
 % save the data in .mat 
-save('../outputs/output_thomas_online/FilteredRunsData.mat','FilteredData')
-save('../outputs/output_thomas_online/FilteredRunsDataOnline.mat','FilteredDataOnline')
+save('../outputs/output_sacha_online/FilteredRunsData.mat','FilteredData')
+save('../outputs/output_sacha_online/FilteredRunsDataOnline.mat','FilteredDataOnline')
     
 
 %% Epoching
@@ -45,21 +53,21 @@ save('../outputs/output_thomas_online/FilteredRunsDataOnline.mat','FilteredDataO
 
 % epochs for the baseline: 2 second before MI-start
 epoch_baseline = epoching_from_event(FilteredData, 300, 2, 0);
-save('../outputs/output_thomas_online/epoch_baseline.mat','epoch_baseline')
+save('../outputs/output_sacha_online/epoch_baseline.mat','epoch_baseline')
 
 % epochs centered on MI-start
 epoch_MI_Start = epoching_from_event(FilteredData, 300, 3, 3);
-save('../outputs/output_thomas_online/epoch_MI_Start.mat','epoch_MI_Start')
+save('../outputs/output_sacha_online/epoch_MI_Start.mat','epoch_MI_Start')
 
 % epochs centered on MI stop
 epoch_MI_Stop = epoching_from_event(FilteredData, 555, 3, 3);
-save('../outputs/output_thomas_online/epoch_MI_Stop.mat','epoch_MI_Stop')
+save('../outputs/output_sacha_online/epoch_MI_Stop.mat','epoch_MI_Stop')
 
 
 %% Feature Extraction
 
 %Load Epochs
-load('./../outputs/output_thomas_online/epoch_MI_Stop.mat')
+load('./../outputs/output_sacha_online/epoch_MI_Stop.mat')
 
 %Fixed parameters
 trials = epoch_MI_Stop.trial;
