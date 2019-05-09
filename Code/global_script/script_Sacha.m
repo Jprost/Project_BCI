@@ -3,6 +3,9 @@
 addpath(genpath('./../toolboxes/biosig'));
 %addpath(genpath('./../toolboxes/eeglab14_1_2b'));
 
+oldpath = path;
+path('/Applications/MATLAB_R2017b.app/toolbox/signal',oldpath)
+
 % access functions
 addpath('./../1_load_data');
 addpath('./../2_preprocessing');
@@ -18,6 +21,14 @@ channel_loc_path = './../data/channel_location_16_10-20_mi.mat';
 
 % load the data
 RunsData = load_data_from_runs(datafolder_path, channel_loc_path);
+
+% clean Run n°3 (missing data)
+% take only the event represented on the signal available and make sur the last event is a end of trial event (event_id = 700)
+len_corrupted_run = size(RunsData(3).signal, 2);
+upper_idx_to_keep = find((RunsData(3).event.action_pos < len_corrupted_run) & (RunsData(3).event.action_type == 700), 1, 'last');
+RunsData(4).event.action_pos = RunsData(3).event.action_pos(1:upper_idx_to_keep, :);
+RunsData(4).event.action_type = RunsData(3).event.action_type(1:upper_idx_to_keep, :);
+
 save('../outputs/output_sacha/runsData.mat','RunsData')
 
 %% Preprocess : Spatial Filtering
@@ -53,29 +64,35 @@ save('../outputs/output_sacha/epoch_MI_Stop.mat','epoch_MI_Stop')
 %% Correlate Analysis : Periodogram
 
 %Load Epochs
-    %load('./../outputs/output_sacha/epoch_baseline.mat')
-    %load('./../outputs/output_sacha/epoch_MI_Start.mat')
-runData = load('./../outputs/output_sacha/FilteredRunsData.mat');
-channel_lab = {runData.FilteredData(1).channel_loc.labels};
+load('./../outputs/output_sacha/epoch_baseline.mat') % <- uncomment to load directly from output folder
+load('./../outputs/output_sacha/epoch_MI_Start.mat') % <- uncomment to load directly from output folder
+runData = load('./../outputs/output_sacha/runsData.mat'); % <- uncomment to load directly from output folder
+channel_lab = {RunsData(1).channel_loc.labels};
+
+[BL_power, BL_freq] = power_compute(epoch_baseline);
+[MI_power, MI_freq] = power_compute(epoch_MI_Start);
 
 % Periodogram for ONE channel
 figure(1)
 channel_num = 16;
-periodogram_plot_oneChannel(epoch_baseline, epoch_MI_Start, channel_num,channel_lab)
+periodogram_plot_oneChannel(BL_power, BL_freq, MI_power, MI_freq, channel_num,channel_lab)%epoch_baseline, epoch_MI_Start, channel_num,channel_lab)
+%savefig('periodogram.fig')
 
 % Periodogram for ALL 16 channels in one plot
 figure(2)
-periodogram_allChannels(epoch_baseline, epoch_MI_Start, channel_lab)
+periodogram_allChannels(BL_power, BL_freq, MI_power, MI_freq, channel_lab)%epoch_baseline, epoch_MI_Start, channel_lab)
+savefig('../../Figures/sacha/all_periodogram_sacha.fig')
 
 % Periodogram for average over channels and trials
 figure(3)
-periodogram_averageChannels(epoch_baseline, epoch_MI_Start)
+periodogram_averageChannels(BL_power, BL_freq, MI_power, MI_freq)%epoch_baseline, epoch_MI_Start)
+savefig('../../Figures/sacha/avg_periodogram_sacha.fig')
 
 %% Correlate Analysis : Spectrogram
 % load epoching data
-load('./../outputs/output_sacha/epoch_MI_Stop.mat');
-load('./../outputs/output_sacha/epoch_MI_Start.mat');
-load('./../outputs/output_sacha/epoch_baseline.mat');
+load('./../outputs/output_sacha/epoch_MI_Stop.mat'); % <- uncomment to load directly from output folder
+load('./../outputs/output_sacha/epoch_MI_Start.mat'); % <- uncomment to load directly from output folder
+load('./../outputs/output_sacha/epoch_baseline.mat'); % <- uncomment to load directly from output folder
 
 % spectrogram parameters
 fs = epoch_MI_Start.sampling_frequency;
@@ -89,10 +106,12 @@ window_time = 1;
 figure(4)
 %sgtitle('Spectrogram Centered on MI-Start')
 plot_all_spectrogram(ERD_ERS_mat_start, t_start, f_start)
+savefig('../../Figures/sacha/MIstart_spectrogram_sacha.fig')
 
 figure(5)
 %sgtitle('Spectrogram Centered on MI-Stop')
 plot_all_spectrogram(ERD_ERS_mat_stop, t_stop, f_stop)
+savefig('../../Figures/sacha/MIstop_spectrogram_sacha.fig')
 
 % save outputs
 save('../outputs/output_sacha/ERD_ERS_mat_start.mat','ERD_ERS_mat_start')
@@ -100,14 +119,60 @@ save('../outputs/output_sacha/ERD_ERS_mat_stop.mat','ERD_ERS_mat_stop')
 
 %% Correlate Analysis : Topoplots
 
+figure(6)
+
+j=1;
+for time=1:5
+    xwx=mean(mean(ERD_ERS_mat_start(20:30, find(t_start==time),:,:),3), 1);
+    add_cbar = false;
+    if time==5
+        add_cbar = true;
+    end
+    
+    subplot(1,5,j)
+    originalSize = get(gca, 'Position');
+    topo_plot(squeeze(xwx),add_cbar);
+    set(gca, 'Position', originalSize);
+    title(['Time ',num2str(time-3.5), ' : ', num2str(time-2.5)])
+    
+    j=j+1;
+end
+%sgtitle('Topoplot Centered on MI-Start')
+savefig('../../Figures/sacha/MIstart_topoplot_sacha.fig')
+
+figure(7)
+
+j=1;
+for time=1:5
+    xwx=mean(mean(ERD_ERS_mat_stop(20:30, find(t_start==time),:,:),3), 1);
+    
+    add_cbar = false;
+    if time==5
+        add_cbar = true;
+    end
+    
+    subplot(1,5,j)
+    originalSize = get(gca, 'Position');
+    topo_plot(squeeze(xwx),add_cbar);
+    set(gca, 'Position', originalSize);
+    title(['Time ',num2str(time-3.5), ' : ', num2str(time-2.5)])
+
+    j=j+1;
+end
+%sgtitle('Topoplot Centered on MI-Stop')
+savefig('../../Figures/sacha/MIstop_topoplot_sacha.fig')
 
 
-%% Feature Extraction - Average perf and fisher score across CV
 
-%Load Epochs
-load('./../outputs/output_sacha/epoch_MI_Stop.mat')
+%% Feature Extraction
 
-%Fixed parameters
+% avoid conflict with pwelch function of eeglab toolbox
+oldpath = path;
+path('/Applications/MATLAB_R2017b.app/toolbox/signal',oldpath)
+
+%load trials data
+load('./../outputs/output_sacha/epoch_MI_Stop.mat') % <- uncomment to load directly from output folder
+
 trials = epoch_MI_Stop.trial;
 time = epoch_MI_Stop.time;
 win = 1;
@@ -124,15 +189,13 @@ features_mat = feat_extraction(trials, time, win, shift, start_ERD, stop_ERD, st
 % save outputs feature matrix
 save('../outputs/output_sacha/features.mat','features_mat')
 
+
+%% Model building
 kfold = 10;
 nFeatKept = 6;
 % Plot (1) boxplot of CV accuracies and  (2) average ROC curves
 % LDA classifier keaping 'nFeatKept' firt best features (based on fisher score)
-[~,~,~,~,fisher_scores,ord_features] = CV_avg_performance_and_featScore(kfold,features_mat,nFeatKept);
+[~,~,~,~,fisher_scores,ord_features,~,~] = CV_avg_performance_and_featScore(kfold,features_mat(:,:,1:60),nFeatKept, true);
 
 %Plot a heatmap channel vs freq, with avg fisher score
 [fisherScore_map] = avg_fisherScore(fisher_scores,ord_features,kfold);
-
-
-%% Model building
-
