@@ -89,16 +89,20 @@ xroc_test_avg = mean(xroc_test_avg,2);
 yroc_test_avg = mean(yroc_test_avg,2);
 
 if(do_plot)
+   
     % ---- Plot BOXPLOT of cross-validation accuracies ----   
     train_cv_acc = mean(acc_train,1);
     test_cv_acc = mean(acc_test,1);
-    figure
+    
+    figure()
     x = [acc_train,acc_test];
     boxplot(x,'Labels',{'train accuracy','test accuracy'})
-    title(join(['Model accuracy - CV 10 Fold - ',num2str(nFeatKept),' Features Kept']))
+    ylabel('Accuracy [%]')
+    title(['Model accuracy - CV 10 Fold - ',num2str(nFeatKept),' Features Kept'])
 
+    
     % ---- Plot average ROC CURVES for predicting class 1 (
-    figure
+    figure()
     plot(xroc_train_avg,yroc_train_avg,'b')
     hold on;
     plot(xroc_test_avg,yroc_test_avg,'r')

@@ -102,13 +102,13 @@ figure(4)
 %sgtitle('Spectrogram Centered on MI-Start')
 mean_ERD_ERS_mat_start= mean(squeeze(ERD_ERS_mat_start(:,:,:,:)),3);
 plot_all_spectrogram(mean_ERD_ERS_mat_start, t_start, f_start)
-%savefig('../../Figures/Jb/MIstart_spectrogram_jb.fig')
+savefig('../../Figures/Jb/MIstart_spectrogram_jb.fig')
 
 figure(5)
 %sgtitle('Spectrogram Centered on MI-Stop')
 mean_ERD_ERS_mat_stop= mean(squeeze(ERD_ERS_mat_stop(:,:,:,:)),3);
 plot_all_spectrogram(mean_ERD_ERS_mat_stop, t_stop, f_stop)
-%savefig('../../Figures/Jb/MIstop_spectrogram_jb.fig')
+savefig('../../Figures/Jb/MIstop_spectrogram_jb.fig')
 
 
 
@@ -136,7 +136,7 @@ for time=1:5
     
     j=j+1;
 end
-sgtitle('Topoplot Centered on MI-Start')
+%sgtitle('Topoplot Centered on MI-Start')
 savefig('../../Figures/Jb/MIstart_topoplot_jb.fig')
 
 figure(7)
@@ -160,15 +160,18 @@ for time=1:5
 
     j=j+1;
 end
-sgtitle('Topoplot Centered on MI-Stop')
+%sgtitle('Topoplot Centered on MI-Stop')
 savefig('../../Figures/Jb/MIstop_topoplot_jb.fig')
 
 %% Feature Extraction
 % avoid conflict with pwelch function of eeglab toolbox
 
+% avoid conflict with pwelch function of eeglab toolbox
 oldpath = path;
 path('/Applications/MATLAB_R2018b.app/toolbox/signal',oldpath)
 
+%load trials data
+    %load('./../outputs/output_antoine/epoch_MI_Stop.mat') % <- uncomment to load directly from output folder
 
 trials = epoch_MI_Stop.trial;
 time = epoch_MI_Stop.time;
@@ -191,8 +194,15 @@ kfold = 10;
 nFeatKept = 6;
 % Plot (1) boxplot of CV accuracies and  (2) average ROC curves
 % LDA classifier keaping 'nFeatKept' firt best features (based on fisher score)
-[~,~,~,~,fisher_scores,ord_features] = CV_avg_performance_and_featScore(kfold,features_mat,nFeatKept, true);
+[~,~,~,~,fisher_scores,ord_features,~,~] = CV_avg_performance_and_featScore(kfold,features_mat(:,:,:),nFeatKept, true);
+savefig('../../Figures/Jb/ROC_LDA.fig')
+savefig('../../Figures/Jb/accuracies_LDA.fig')
+
+
+%Plot a heatmap channel vs freq, with avg fisher score
 [fisherScore_map] = avg_fisherScore(fisher_scores,ord_features,kfold);
+
+savefig('../../Figures/Jb/FeatureSelectionMap_LDA.fig')
 
 %% Model Comparison - Accuracies & ROC
 figure()
@@ -200,7 +210,7 @@ figure()
         features_mat,nFeatKept, true);
 
 
-savefig('../../Figures/Models/Accuracies_ROC.fig')
+savefig('../../Figures/Jb/Models_Comparison.fig')
 %% Model Comparison - nFeats
 
 nFeats=5:20:105;
@@ -240,4 +250,4 @@ for m=1:5
 end
 legend(models_labels)
 
-savefig('../../Figures/Models/Nb_Features.fig')
+savefig('../../Figures/JB/Nb_Features.fig')
