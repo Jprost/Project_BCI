@@ -69,7 +69,7 @@ for iFold = 1:kfold
     model = fitcdiscr(TrainData_f, labels_mat_train, 'discrimtype', 'linear');   
     [yhat_train,score_train] = predict(model, TrainData_f);
     [yhat_test,score_test] = predict(model, TestData_f);
-    
+
     %ROC CURVE FOR Offset TASK (CLASS 1)
     [x_train,y_train] = perfcurve(labels_mat_train,score_train(:,2),1);
     [x_test,y_test] = perfcurve(labels_mat_test,score_test(:,2),1);

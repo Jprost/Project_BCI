@@ -23,7 +23,7 @@ channel_loc_path = './../data/channel_location_16_10-20_mi.mat';
 
 % load the data
 RunsData = load_data_from_runs(datafolder_path, channel_loc_path);
-save('../outputs/output_Jb/runsData.mat','RunsData')
+%save('../outputs/output_Jb/runsData.mat','RunsData')
 
 %% Preprocess : Spatial Filtering
 
@@ -34,7 +34,7 @@ load('./../data/laplacian_16_10-20_mi.mat');
 FilteredData = preprocess_all_run(RunsData, lap, true, false);
 
 % save the data in .mat 
-save('../outputs/output_Jb/FilteredRunsData.mat','FilteredData')
+%save('../outputs/output_Jb/FilteredRunsData.mat','FilteredData')
     
 
 %% Epoching
@@ -44,15 +44,15 @@ save('../outputs/output_Jb/FilteredRunsData.mat','FilteredData')
 
 % epochs for the baseline: 2 second before MI-start
 epoch_baseline = epoching_from_event(FilteredData, 300, 2, 0);
-save('../outputs/output_Jb/epoch_baseline.mat','epoch_baseline')
+%save('../outputs/output_Jb/epoch_baseline.mat','epoch_baseline')
 
 % epochs centered on MI-start
 epoch_MI_Start = epoching_from_event(FilteredData, 300, 3, 3);
-save('../outputs/output_Jb/epoch_MI_Start.mat','epoch_MI_Start')
+%save('../outputs/output_Jb/epoch_MI_Start.mat','epoch_MI_Start')
 
 % epochs centered on MI stop
 epoch_MI_Stop = epoching_from_event(FilteredData, 555, 3, 3);
-save('../outputs/output_Jb/epoch_MI_Stop.mat','epoch_MI_Stop')
+%save('../outputs/output_Jb/epoch_MI_Stop.mat','epoch_MI_Stop')
 
 %% Correlate Analysis : Periodogram
 
@@ -73,12 +73,12 @@ periodogram_plot_oneChannel(BL_power, BL_freq, MI_power, MI_freq, channel_num,ch
 % Periodogram for ALL 16 channels in one plot
 figure(2)
 periodogram_allChannels(BL_power, BL_freq, MI_power, MI_freq, channel_lab)%epoch_baseline, epoch_MI_Start, channel_lab)
-savefig('../../Figures/Jb/all_periodogram_jb.fig')
+%savefig('../../Figures/Jb/all_periodogram_jb.fig')
 
 % Periodogram for average over channels and trials
 figure(3)
 periodogram_averageChannels(BL_power, BL_freq, MI_power, MI_freq)%epoch_baseline, epoch_MI_Start)
-savefig('../../Figures/Jb/avg_periodogram_jb.fig')
+%savefig('../../Figures/Jb/avg_periodogram_jb.fig')
 
 %% Correlate Analysis : Spectrogram
 % load epoching data
@@ -95,20 +95,20 @@ window_time = 1;
 [ERD_ERS_mat_start, t_start, f_start] = compute_spectrogram(epoch_MI_Start, epoch_baseline, fs, window_time, non_overlap_time);
 [ERD_ERS_mat_stop, t_stop, f_stop] = compute_spectrogram(epoch_MI_Stop, epoch_baseline, fs, window_time, non_overlap_time);
 
-save('./../outputs/output_jb/ERD_ERS_mat_start.mat','ERD_ERS_mat_start')
-save('./../outputs/output_jb/ERD_ERS_mat_stop.mat','ERD_ERS_mat_stop')
+%save('./../outputs/output_jb/ERD_ERS_mat_start.mat','ERD_ERS_mat_start')
+%save('./../outputs/output_jb/ERD_ERS_mat_stop.mat','ERD_ERS_mat_stop')
 
 figure(4)
 %sgtitle('Spectrogram Centered on MI-Start')
 mean_ERD_ERS_mat_start= mean(squeeze(ERD_ERS_mat_start(:,:,:,:)),3);
 plot_all_spectrogram(mean_ERD_ERS_mat_start, t_start, f_start)
-savefig('../../Figures/Jb/MIstart_spectrogram_jb.fig')
+%savefig('../../Figures/Jb/MIstart_spectrogram_jb.fig')
 
 figure(5)
 %sgtitle('Spectrogram Centered on MI-Stop')
 mean_ERD_ERS_mat_stop= mean(squeeze(ERD_ERS_mat_stop(:,:,:,:)),3);
 plot_all_spectrogram(mean_ERD_ERS_mat_stop, t_stop, f_stop)
-savefig('../../Figures/Jb/MIstop_spectrogram_jb.fig')
+%savefig('../../Figures/Jb/MIstop_spectrogram_jb.fig')
 
 
 
@@ -137,7 +137,7 @@ for time=1:5
     j=j+1;
 end
 %sgtitle('Topoplot Centered on MI-Start')
-savefig('../../Figures/Jb/MIstart_topoplot_jb.fig')
+%savefig('../../Figures/Jb/MIstart_topoplot_jb.fig')
 
 figure(7)
 
@@ -161,7 +161,7 @@ for time=1:5
     j=j+1;
 end
 %sgtitle('Topoplot Centered on MI-Stop')
-savefig('../../Figures/Jb/MIstop_topoplot_jb.fig')
+%savefig('../../Figures/Jb/MIstop_topoplot_jb.fig')
 
 %% Feature Extraction
 % avoid conflict with pwelch function of eeglab toolbox
@@ -187,22 +187,25 @@ stop_ERS = 2.5;
 features_mat = feat_extraction(trials, time, win, shift, start_ERD, stop_ERD, start_ERS, stop_ERS);
 
 % save outputs feature matrix
-save('./../outputs/output_jb/features.mat','features_mat')
+%save('./../outputs/output_jb/features.mat','features_mat')
 
 %% Model building
 kfold = 10;
 nFeatKept = 6;
 % Plot (1) boxplot of CV accuracies and  (2) average ROC curves
 % LDA classifier keaping 'nFeatKept' firt best features (based on fisher score)
-[~,~,~,~,fisher_scores,ord_features,~,~] = CV_avg_performance_and_featScore(kfold,features_mat(:,:,:),nFeatKept, true);
-savefig('../../Figures/Jb/ROC_LDA.fig')
-savefig('../../Figures/Jb/accuracies_LDA.fig')
+%[~,~,~,~,fisher_scores,ord_features,~,~] = CV_avg_performance_and_featScore(kfold,features_mat(:,:,:),nFeatKept, true);
+
+[~,~,~,~,fisher_scores,ord_features,~,~] = CV_diaglin(kfold,features_mat(:,:,:),nFeatKept, true);
+
+%savefig('../../Figures/Jb/ROC_LDA.fig')
+%savefig('../../Figures/Jb/accuracies_LDA.fig')
 
 
 %Plot a heatmap channel vs freq, with avg fisher score
-[fisherScore_map] = avg_fisherScore(fisher_scores,ord_features,kfold);
+%[fisherScore_map] = avg_fisherScore(fisher_scores,ord_features,kfold);
 
-savefig('../../Figures/Jb/FeatureSelectionMap_LDA.fig')
+%savefig('../../Figures/Jb/FeatureSelectionMap_LDA.fig')
 
 %% Model Comparison - Accuracies & ROC
 figure()
